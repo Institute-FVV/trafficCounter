@@ -5,9 +5,9 @@ import App from './components/app/App';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>,
   document.getElementById('root')
 );
 
@@ -16,4 +16,5 @@ ReactDOM.render(
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
+// enable hotswapping of modules
 if (module.hot) module.hot.accept();

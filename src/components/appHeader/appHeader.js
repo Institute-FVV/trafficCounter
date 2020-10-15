@@ -1,24 +1,29 @@
 import React from 'react';
-import { BrowserRouter as Router, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
   Button,
   Typography,
+  withStyles
 } from '@material-ui/core';
 
-const AppHeader = () => (
+const styles = {
+  flex: {
+    flex: 1,
+  },
+};
+
+const AppHeader = ({ classes }) => (
   <AppBar position="static">
     <Toolbar>
       <Typography variant="h6" color="inherit">
-        My React App
+        Traffic Counter
       </Typography>
-      <Router>
-        <Button color="inherit" component={Link} to="/">Home</Button>
-        <Button color="inherit" component={Link} to="/posts">Posts Manager</Button>
-      </Router>
+        <Button color="inherit" component={Link} to="/">Streets</Button>
+        <div className={classes.flex} />
     </Toolbar>
   </AppBar>
 );
 
-export default AppHeader;
+export default withStyles(styles)(AppHeader);

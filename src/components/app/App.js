@@ -1,13 +1,14 @@
 import React, { Fragment } from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import {
   CssBaseline,
   withStyles,
 } from '@material-ui/core';
 
+import { } from './config';
 import AppHeader from '../appHeader/appHeader';
-import Home from '../../pages/home/home';
-import PostManager from '../../pages/postManager/postManager';
+import StreetManager from '../../pages/streetManager/streetManager';
+import StreetMeasurement from '../../pages/streetMeasurement/streetMeasurement';
 
 const styles = theme => ({
   main: {
@@ -23,10 +24,10 @@ const App = ({ classes }) => (
     <CssBaseline />
     <AppHeader />
     <main className={classes.main}>
-    <Router>
-      <Route exact path="/" component={Home} />
-      <Route path="/posts" component={PostManager} />
-    </Router>
+      <Route exact path="/" component={StreetManager} />
+      <Route exact path="/streets" component={StreetManager} />
+      <Route path="/streets/:id/measurements" component={StreetMeasurement} />
+      <Route exact path="/streets/:id" component={StreetManager} />
     </main>
   </Fragment>
 );

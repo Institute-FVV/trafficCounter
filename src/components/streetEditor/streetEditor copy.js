@@ -11,6 +11,8 @@ import {
 import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
 import { Form, Field } from 'react-final-form';
+import FormLabel from '@material-ui/core/FormLabel';
+
 
 const styles = theme => ({
   modal: {
@@ -31,8 +33,9 @@ const styles = theme => ({
   },
 });
 
-const PostEditor = ({ classes, post, onSave, history }) => (
-  <Form initialValues={post} onSubmit={onSave}>
+const StreetEditor = ({ classes, street, onSave, history }) => (
+
+  <Form initialValues={street} onSubmit={onSave}>
     {({ handleSubmit }) => (
       <Modal
         className={classes.modal}
@@ -42,21 +45,27 @@ const PostEditor = ({ classes, post, onSave, history }) => (
         <Card className={classes.modalCard}>
           <form onSubmit={handleSubmit}>
             <CardContent className={classes.modalCardContent}>
-              <Field name="title">
-                {({ input }) => <TextField label="Title" autoFocus {...input} />}
+            <label>Street name</label>
+              <Field name="streetName">
+                {({ input }) => <TextField autoFocus {...input} />}
               </Field>
-              <Field name="body">
-                {({ input }) => (
-                  <TextField
-                    className={classes.marginTop}
-                    label="Body"
-                    multiline
-                    rows={4}
-                    {...input}
-                  />
-                )}
+
+              <label>Amount of options</label>
+              <Field name="amountOptions" component="select">
+                <option />
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
               </Field>
+           
             </CardContent>
+            
             <CardActions>
               <Button size="small" color="primary" type="submit">Save</Button>
               <Button size="small" onClick={() => history.goBack()}>Cancel</Button>
@@ -71,4 +80,4 @@ const PostEditor = ({ classes, post, onSave, history }) => (
 export default compose(
   withRouter,
   withStyles(styles),
-)(PostEditor);
+)(StreetEditor);

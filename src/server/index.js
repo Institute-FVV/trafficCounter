@@ -1,5 +1,7 @@
 require('dotenv').config({ path: '.env' });
 
+const port = process.env.SERVER_PORT || 3001;
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -10,7 +12,7 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const database = new Sequelize({
   dialect: 'postgres',
@@ -21,22 +23,26 @@ const database = new Sequelize({
   port: process.env.PGPORT || 5432,
 });
 
-const Post = database.define('posts', {
-  title: Sequelize.STRING,
-  body: Sequelize.TEXT,
+finale.initialize({ 
+  app: app,
+  base: '/api',
+  sequelize: database 
 });
 
-finale.initialize({ app, sequelize: database });
+const Street = database.define('streets', {
+  streetName: Sequelize.STRING,
+  amountOptions: Sequelize.INTEGER
+});
 
 finale.resource({
-  model: Post,
-  endpoints: ['/posts', '/posts/:id'],
+  model: Street,
+  endpoints: ['/streets', '/streets/:id'],
 });
 
-const port = process.env.SERVER_PORT || 3001;
-
-database.sync().then(() => {
-  app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
+database
+  .sync( {force: true })
+  .then(() => {
+    app.listen(port, () => {
+     console.log(`Listening on port ${port}`);
   });
 });
