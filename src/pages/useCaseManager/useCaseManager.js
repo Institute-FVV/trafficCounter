@@ -16,12 +16,13 @@ import moment from 'moment';
 import { find, orderBy } from 'lodash';
 import { compose } from 'recompose';
 
-import StreetEditor from '../../components/streetEditor/streetEditor';
+import UseCaseEditor from '../../components/useCaseEditor/useCaseEditor';
 import ErrorSnackbar from '../../components/error/errorSnackbar';
 
 const styles = theme => ({
-  streets: {
+  useCase: {
     marginTop: theme.spacing(2),
+    outline: 0,
   },
   fab: {
     position: 'absolute',
@@ -34,15 +35,15 @@ const styles = theme => ({
   },
 });
 
-class StreetManager extends Component {
+class UseCaseManager extends Component {
   state = {
     loading: true,
-    streets: [],
+    useCases: [],
     error: null,
   };
 
   componentDidMount() {
-    this.getStreets();
+    this.getUseCases();
   }
 
   async fetch(method, endpoint, body) {
@@ -64,60 +65,62 @@ class StreetManager extends Component {
     }
   }
 
-  async getStreets() {
-    this.setState({ loading: false, streets: (await this.fetch('get', '/streets')) || [] });
+  async getUseCases() {
+    this.setState({ loading: false, useCases: (await this.fetch('get', '/useCases')) || [] });
   }
 
-  saveStreet = async (street) => {
-    console.log(street)
-    if (street.id) {
-      await this.fetch('put', `/streets/${street.id}`, street);
+  saveUseCase  = async (id, name, measurementOptions) => {
+    var postData = {
+      name: name,
+      measurementOptions: measurementOptions
+    }
+
+    if (id) {
+      await this.fetch('put', `/useCases/${id}`, postData);
     } else {
-      await this.fetch('post', '/streets', street);
+      await this.fetch('post', '/useCases', postData);
     }
 
     this.props.history.goBack();
-    this.getStreets();
+    this.getUseCases();
   }
 
-  async deleteStreet(street) {
-    if (window.confirm(`Are you sure you want to delete "${street.streetName}"`)) {
-      await this.fetch('delete', `/streets/${street.id}`);
-      this.getStreets();
+  async deleteUseCase(useCase) {
+    if (window.confirm(`Are you sure you want to delete "${useCase.name}"`)) {
+      await this.fetch('delete', `/useCase/${useCase.id}`);
+      this.getUseCases();
     }
   }
 
-  renderStreetEditor = ({ match: { params: { id } } }) => {
+  renderUseCaseEditor = ({ match: { params: { id } } }) => {
     if (this.state.loading) return null;
-    const street = find(this.state.streets, { id: Number(id) });
+    const useCase = find(this.state.useCases, { id: Number(id) });
 
-    if (!street && id !== 'new') return <Redirect to="/streets" />;
+    if (!useCase && id !== 'new') return <Redirect to="/useCases" />;
 
-    return <StreetEditor street={street} onSave={this.saveStreet} />;
+    return <UseCaseEditor useCase={useCase} onSave={this.saveUseCase} />;
   };
-
-
 
   render() {
     const { classes } = this.props;
 
     return (
       <Fragment>
-        <Typography variant="h4">Streets</Typography>
-        {this.state.streets.length > 0 ? (
-          <Paper elevation={1} className={classes.streets}>
+        <Typography variant="h4">Use Cases</Typography>
+        {this.state.useCases.length > 0 ? (
+          <Paper elevation={1} className={classes.useCase}>
             <List>
-              {orderBy(this.state.streets, ['updatedAt', 'streetName'], ['desc', 'asc']).map(street => (
-                <ListItem key={street.id} button component={Link} to={`/streets/${street.id}/measurements`}>
+              {orderBy(this.state.useCases, ['updatedAt', 'name'], ['desc', 'asc']).map(useCase => (
+                <ListItem key={useCase.id} button component={Link} to={`/useCases/${useCase.id}/measurements`}>
                   <ListItemText
-                    primary={street.streetName}
-                    secondary={street.updatedAt && `Updated ${moment(street.updatedAt).fromNow()}`}
+                    primary={useCase.name}
+                    secondary={useCase.updatedAt && `Updated ${moment(useCase.updatedAt).fromNow()}`}
                   />
                   <ListItemSecondaryAction>
-                    <IconButton component={Link} to={`/streets/${street.id}`} color="inherit">
+                    <IconButton component={Link} to={`/useCases/${useCase.id}`} color="inherit">
                       <CreateIcon />
                     </IconButton>
-                    <IconButton onClick={() => this.deleteStreet(street)} color="inherit">
+                    <IconButton onClick={() => this.useCase(useCase)} color="inherit">
                       <DeleteIcon />
                     </IconButton>
                   </ListItemSecondaryAction>
@@ -126,18 +129,19 @@ class StreetManager extends Component {
             </List>
           </Paper>
         ) : (
-          !this.state.loading && <Typography variant="subtitle1">No streets to display</Typography>
+          !this.state.loading && <Typography variant="subtitle1">So far no use cases have been created</Typography>
         )}
         <Fab
           color="secondary"
           aria-label="add"
           className={classes.fab}
           component={Link}
-          to="/streets/new"
+          to="/useCases/new"
         >
           <AddIcon />
         </Fab>
-        <Route exact path="/streets/:id" render={this.renderStreetEditor} />
+
+        <Route exact path="/useCases/:id" render={this.renderUseCaseEditor} />
         {this.state.error && (
           <ErrorSnackbar
             onClose={() => this.setState({ error: null })}
@@ -152,4 +156,4 @@ class StreetManager extends Component {
 export default compose(
   withRouter,
   withStyles(styles),
-)(StreetManager);
+)(UseCaseManager);

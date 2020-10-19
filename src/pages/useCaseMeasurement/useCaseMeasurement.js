@@ -1,17 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { withRouter, Route, Link } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import {
   withStyles,
   Typography,
   Fab
 } from '@material-ui/core';
-import { Create as CreateIcon, ImportExport as ImportExportIcon } from '@material-ui/icons';
+import { List as ListIcon} from '@material-ui/icons';
 
 import { compose } from 'recompose';
-import { find, orderBy } from 'lodash';
 import ErrorSnackbar from '../../components/error/errorSnackbar';
 import MeasurementButtons from '../../components/measurementButtons/measurementButtons';
-import MeasurementEditor from '../../components/measurementEditor/measurementEditor';
 
 const styles = theme => ({
   fabEdit: {
@@ -38,17 +36,19 @@ const styles = theme => ({
 
 });
 
-class StreetMeasurement extends Component {
+class UseCaseMeasurement extends Component {
   state = {
     loading: true,
-    streetId: '',
-    street: '',
+    useCaseId: '',
+    useCaseDetails: '',
     measurements: [],
     error: null,
   };
 
   componentDidMount() {
-    this.getStreetMeasurement();
+    const useCaseId = this.props.history.location.pathname.split('/')[2];
+
+    this.setState({useCaseId: useCaseId}, this.getUseCases)
   }
 
   async fetch(method, endpoint, body) {
@@ -70,53 +70,56 @@ class StreetMeasurement extends Component {
     }
   }
 
-  async getStreetMeasurement() {
-    const streetId = this.props.history.location.pathname.split('/')[2];
-    this.setState({ loading: false, streetId: streetId, street: (await this.fetch('get', '/streets/' + streetId)) || [] });
+  async getMeasurements() {
+    this.setState({
+      measurements: (await this.fetch('get', '/measurements/?useCaseId=' + this.state.useCaseId)) || []
+    });
   }
 
-  saveMeasurement = async (measurement) => {
-    if (measurement.id) {
-      await this.fetch('put', `/measurements/${measurement.id}`, measurement);
-    } else {
-      await this.fetch('post', '/measurements', measurement);
+  async getUseCases() {
+    this.setState({
+      useCaseDetails: (await this.fetch('get', '/useCases/' + this.state.useCaseId)) || []
+    })
+
+    this.getMeasurements()
+  }
+
+  saveMeasurement = async (value) => {
+    let postData = {
+      "useCase": this.state.useCaseId,
+      "value": value 
     }
-
-    this.props.history.goBack();
-    this.getStreets();
+    
+    await this.fetch('post', `/measurements/`, postData);
+    this.getMeasurements()
   }
 
-  saveMeasurementDetails = async (details) => {
-    this.setState({loading: true, directions: details})
-    this.props.history.goBack();
+  handleButtonPress = async(value) => {
+    this.saveMeasurement(value)
   }
-
-  renderStreetEditor = () => {
-    return <MeasurementEditor directions={this.state.directions} onSave={this.saveMeasurementDetails} />;
-  };
-
 
   render() {
     const { classes } = this.props;
-    const to = "/streets/" + this.state.streetId + "/measurements/edit" 
+    const to = "/useCases/" + this.state.useCaseId + "/measurements/view"
+
+    let onClickFunction = this.handleButtonPress
 
     const listItems = []
-    console.log(this.state)
-    for(let i = 0; i < this.state.street.amountOptions; i++) {
-      listItems.push(<MeasurementButtons/>)
+    if(this.state.useCaseDetails.measurementOptions){
+      this.state.useCaseDetails.measurementOptions.forEach(function (value) {
+        listItems.push(<MeasurementButtons onClick={onClickFunction} value={value.name}/>)
+      })
     }
 
     return (
       <Fragment>
-        <Typography variant="h5">Measurements for { this.state.street.streetName}</Typography>
+        <Typography variant="h5">Measurements for { this.state.useCaseDetails.name} </Typography>
         <Fab
           color="secondary"
           aria-label="edit"
           className={classes.fabEdit}
-          component={Link}
-          to={to}
         >
-           <ImportExportIcon />
+           {this.state.measurements.length}
         </Fab>
         <Fab
           color="secondary"
@@ -125,17 +128,17 @@ class StreetMeasurement extends Component {
           component={Link}
           to={to}
         >
-          <CreateIcon />
+          <ListIcon />
         </Fab>
 
-        {this.state.street.streetName !== "" ? (
+        {this.state.useCaseDetails.name !== "" ? (
         
         <Fragment>
           {listItems}
         </Fragment>
 
         ) : (
-          !this.state.loading && <Typography variant="subtitle1">No streets to display</Typography>
+          !this.state.loading && <Typography variant="subtitle1">No measurements have been taken so far</Typography>
         )}
 
         {this.state.error && (
@@ -152,4 +155,4 @@ class StreetMeasurement extends Component {
 export default compose(
   withRouter,
   withStyles(styles),
-)(StreetMeasurement);
+)(UseCaseMeasurement);

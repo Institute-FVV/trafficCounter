@@ -7,8 +7,9 @@ import {
 
 import { } from './config';
 import AppHeader from '../appHeader/appHeader';
-import StreetManager from '../../pages/streetManager/streetManager';
-import StreetMeasurement from '../../pages/streetMeasurement/streetMeasurement';
+import UseCaseManager from '../../pages/useCaseManager/useCaseManager';
+import UseCaseMeasurement from '../../pages/useCaseMeasurement/useCaseMeasurement';
+import MeasurementView from '../../pages/measurementView/measurementView';
 
 const styles = theme => ({
   main: {
@@ -24,10 +25,11 @@ const App = ({ classes }) => (
     <CssBaseline />
     <AppHeader />
     <main className={classes.main}>
-      <Route exact path="/" component={StreetManager} />
-      <Route exact path="/streets" component={StreetManager} />
-      <Route path="/streets/:id/measurements" component={StreetMeasurement} />
-      <Route exact path="/streets/:id" component={StreetManager} />
+      <Route exact path="/" component={UseCaseManager} />
+      <Route exact path="/useCases" component={UseCaseManager} />
+      <Route exact path="/useCases/:id/measurements" component={UseCaseMeasurement} />
+      <Route exact path="/useCases/:id" component={UseCaseManager} />
+      <Route exact path="/useCases/:id/measurements/view" component={MeasurementView} />
     </main>
   </Fragment>
 );

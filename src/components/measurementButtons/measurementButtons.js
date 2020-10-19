@@ -1,13 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { compose } from 'recompose';
 import {
-  Typography,
   withStyles,
-  Button, 
-  ButtonGroup
+  Button
 } from '@material-ui/core';
-import { DirectionsBike as DirectionsBikeIcon, DirectionsWalk as DirectionsWalkIcon, DriveEta as DriveEtaIcon} from '@material-ui/icons';
-
 
 const styles = theme => ({
     margin: {
@@ -19,22 +15,25 @@ const styles = theme => ({
 
 class MeasurementButtons extends Component {
     state = {
-        direction: ''
+        value: ''
     }
 
-    componentDidUpdate() {
-        if(this.state.direction !== this.props.direction)
-        {
-            this.setState({ direction: this.props.direction})
-        }
+    componentDidMount() {
+        this.setState({ value: this.props.value})
+    }
+
+    handleButtonPress = () => {
+        const { onClick } = this.props
+
+        onClick(this.state.value)
     }
 
     render() {
-        const { classes } = this.props
+        const { classes, value } = this.props
         
         return (
             <Fragment>
-                <Button variant="contained" className={classes.margin}><DirectionsBikeIcon/> Bike</Button>
+                <Button variant="contained" className={classes.margin} onClick={this.handleButtonPress} >{value}</Button>
             </Fragment>
         )
     }

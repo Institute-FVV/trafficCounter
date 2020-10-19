@@ -18,9 +18,9 @@ const AppHeader = ({ classes }) => (
   <AppBar position="static">
     <Toolbar>
       <Typography variant="h6" color="inherit">
-        Traffic Counter
+        Counter
       </Typography>
-        <Button color="inherit" component={Link} to="/">Streets</Button>
+        <Button color="inherit" component={Link} to="/">Case</Button>
         <div className={classes.flex} />
     </Toolbar>
   </AppBar>

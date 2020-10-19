@@ -1,6 +1,7 @@
 require('dotenv').config({ path: '.env' });
 
 const port = process.env.SERVER_PORT || 3001;
+var path = require('path');
 
 const express = require('express');
 const cors = require('cors');
@@ -29,20 +30,37 @@ finale.initialize({
   sequelize: database 
 });
 
-const Street = database.define('streets', {
-  streetName: Sequelize.STRING,
-  amountOptions: Sequelize.INTEGER
+const UseCase = database.define('useCase', {
+  name: Sequelize.STRING,
+  measurementOptions: Sequelize.JSON
 });
 
 finale.resource({
-  model: Street,
-  endpoints: ['/streets', '/streets/:id'],
+  model: UseCase,
+  endpoints: ['/useCases', '/useCases/:id'],
+});
+
+const Measurement = database.define('measurement', {
+  useCase: Sequelize.STRING,
+  value: Sequelize.STRING
+});
+
+finale.resource({
+  model: Measurement,
+  endpoints: ['/measurements', '/measurements/:id'],
+  search: {
+    param: 'useCaseId',
+    attributes: ["useCase"]
+  },
+  pagination: false
 });
 
 database
-  .sync( {force: true })
+  .sync( )
   .then(() => {
     app.listen(port, () => {
      console.log(`Listening on port ${port}`);
   });
 });
+
+app.use(express.static(path.join(__dirname, 'public')));
