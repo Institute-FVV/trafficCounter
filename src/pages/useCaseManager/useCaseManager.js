@@ -86,8 +86,16 @@ class UseCaseManager extends Component {
   }
 
   async deleteUseCase(useCase) {
+    var that = this
+
     if (window.confirm(`Are you sure you want to delete "${useCase.name}"`)) {
-      await this.fetch('delete', `/useCase/${useCase.id}`);
+      await this.fetch('delete', `/useCases/${useCase.id}`);
+      let measurements = await this.fetch('get', `/measurements?useCaseId=${useCase.id}`);
+
+      measurements.forEach(function(element) {
+        that.fetch('delete', `/measurements/${element.id}`);
+      })
+
       this.getUseCases();
     }
   }
@@ -120,7 +128,7 @@ class UseCaseManager extends Component {
                     <IconButton component={Link} to={`/useCases/${useCase.id}`} color="inherit">
                       <CreateIcon />
                     </IconButton>
-                    <IconButton onClick={() => this.useCase(useCase)} color="inherit">
+                    <IconButton onClick={() => this.deleteUseCase(useCase)} color="inherit">
                       <DeleteIcon />
                     </IconButton>
                   </ListItemSecondaryAction>
