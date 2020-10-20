@@ -22,7 +22,7 @@ app.use(express.static(path.join(publicFolder, 'build')));
 
 const database = new Sequelize({
   dialect: 'postgres',
-  database: 'trafficCounter',
+  database: 'fvv_counter',
   username: process.env.PGUSER || '',
   password: process.env.PGPASSWORD || '',
   host: process.env.PGHOST || '/var/run/postgresql',
