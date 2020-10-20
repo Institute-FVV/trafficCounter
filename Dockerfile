@@ -20,7 +20,6 @@ COPY . .
 RUN npm run build
 RUN ls -al 
 RUN mkdir ./build
-COPY ./build ./src/server/public/
 
 # publish app
 EXPOSE 3001
