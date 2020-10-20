@@ -19,6 +19,7 @@ RUN npm install --only=production && npm cache clean --force --loglevel=error
 COPY . .
 RUN npm run build
 RUN ls -al 
+RUN mkdir ./build
 COPY ./build ./src/server/public/
 
 # publish app
