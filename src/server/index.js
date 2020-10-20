@@ -1,6 +1,6 @@
 require('dotenv').config({ path: '.env' });
 
-const port = process.env.SERVER_PORT || 3001;
+const port = process.env.SERVER_PORT || 3003;
 var path = require('path');
 
 const express = require('express');
@@ -14,6 +14,11 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+let publicFolder = path.resolve(__dirname, '..')
+publicFolder = path.resolve(publicFolder, '..')
+console.log(path.join(publicFolder, 'build'))
+app.use(express.static(path.join(publicFolder, 'build')));
 
 const database = new Sequelize({
   dialect: 'postgres',
@@ -62,5 +67,3 @@ database
      console.log(`Listening on port ${port}`);
   });
 });
-
-app.use(express.static(path.join(__dirname, 'public')));
