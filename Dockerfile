@@ -21,4 +21,4 @@ RUN npm run build
 
 # publish app
 EXPOSE 8080
-CMD [ "node", "src/server" ]
+ENTRYPOINT [ "docker/entrypoint.sh" ]
