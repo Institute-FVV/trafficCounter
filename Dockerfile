@@ -19,6 +19,8 @@ RUN npm install --only=production && npm cache clean --force --loglevel=error
 COPY . .
 RUN npm run build
 
+RUN chmod +x docker/entrypoint.sh
+
 # publish app
 EXPOSE 8080
 ENTRYPOINT [ "docker/entrypoint.sh" ]
