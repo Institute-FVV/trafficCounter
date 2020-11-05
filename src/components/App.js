@@ -5,17 +5,16 @@ import {
   withStyles,
 } from '@material-ui/core';
 
-import { } from './config';
-import AppHeader from '../appHeader/appHeader';
-import UseCaseManager from '../../pages/useCaseManager/useCaseManager';
-import UseCaseMeasurement from '../../pages/useCaseMeasurement/useCaseMeasurement';
-import MeasurementView from '../../pages/measurementView/measurementView';
+import AppHeader from './appHeader';
+import UseCaseManager from '../pages/useCaseManager';
+import UseCaseMeasurement from '../pages/useCaseMeasurement';
+import MeasurementView from '../pages/measurementView';
 
 const styles = theme => ({
   main: {
-    padding: theme.spacing(3),
+    padding: theme.spacing(2),
     [theme.breakpoints.down('xs')]: {
-      padding: theme.spacing(2),
+      padding: theme.spacing(1),
     },
   },
 });
@@ -29,6 +28,7 @@ const App = ({ classes }) => (
       <Route exact path="/useCases" component={UseCaseManager} />
       <Route exact path="/useCases/:id/measurements" component={UseCaseMeasurement} />
       <Route exact path="/useCases/:id" component={UseCaseManager} />
+      <Route exact path="/useCases/:id/copy" render={UseCaseManager} />
       <Route exact path="/useCases/:id/measurements/view" component={MeasurementView} />
     </main>
   </Fragment>

@@ -1,53 +1,37 @@
 require('dotenv').config({ path: '.env' });
 
 const port = process.env.SERVER_PORT || 8080;
-var path = require('path');
-
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const Sequelize = require('sequelize');
 const finale  = require('finale-rest');
-
 const app = express();
+const { database } = require('./database')
+const { UseCase } = require('./models/useCase')
+const { Measurement } = require('./models/measurement');
+const { Sequelize } = require('sequelize');
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// serve static folder for production
 let publicFolder = path.resolve(__dirname, '..')
 publicFolder = path.resolve(publicFolder, '..')
-console.log(path.join(publicFolder, 'build'))
 app.use(express.static(path.join(publicFolder, 'build')));
 
-const database = new Sequelize({
-  dialect: 'postgres',
-  database: 'fvv_counter',
-  username: process.env.PGUSER || '',
-  password: process.env.PGPASSWORD || '',
-  host: process.env.PGHOST || '/var/run/postgresql',
-  port: process.env.PGPORT || 5432,
-});
-
+// define base api 
 finale.initialize({ 
   app: app,
   base: '/api',
   sequelize: database 
 });
 
-const UseCase = database.define('useCase', {
-  name: Sequelize.STRING,
-  measurementOptions: Sequelize.JSON
-});
-
+// create endpoints
 finale.resource({
   model: UseCase,
   endpoints: ['/useCases', '/useCases/:id'],
-});
-
-const Measurement = database.define('measurement', {
-  useCase: Sequelize.STRING,
-  value: Sequelize.STRING
 });
 
 finale.resource({
@@ -55,13 +39,15 @@ finale.resource({
   endpoints: ['/measurements', '/measurements/:id'],
   search: {
     param: 'useCaseId',
+    operator: Sequelize.Op.eq,
     attributes: ["useCase"]
   },
   pagination: false
 });
 
+// start express server
 database
-  .sync( )
+  .sync()
   .then(() => {
     app.listen(port, () => {
      console.log(`Listening on port ${port}`);

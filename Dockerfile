@@ -20,5 +20,5 @@ COPY . .
 RUN npm run build
 
 # publish app
-EXPOSE 3001
+EXPOSE 8080
 CMD [ "node", "src/server" ]
