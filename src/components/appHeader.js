@@ -37,6 +37,7 @@ const styles = theme => ({
     },
   },
   toolBar: {
+    backgroundColor: "#a30d35",
     padding: theme.spacing(1)
   }
 })

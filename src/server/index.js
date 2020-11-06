@@ -47,9 +47,13 @@ finale.resource({
 
 // start express server
 database
-  .sync()
+  .sync({ })
   .then(() => {
     app.listen(port, () => {
      console.log(`Listening on port ${port}`);
   });
+});
+
+app.get('*', function(req, res) {
+  res.sendFile(path.join(publicFolder, 'build', 'index.html'));
 });
