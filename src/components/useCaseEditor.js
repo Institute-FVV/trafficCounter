@@ -73,8 +73,9 @@ class UseCaseditor extends Component {
   }
 
   // called by child MeasurementOptions when change of input
-  handleOptionChange = function(groupIndex, opionIndex, options) {
+  handleOptionChange = function(groupIndex, options) {
     let tmpOptions = this.state.measurementOptions
+    
     tmpOptions[groupIndex].options = options
     this.setState({measurementOptions: tmpOptions})
   }
@@ -88,6 +89,15 @@ class UseCaseditor extends Component {
     onSave(id, name, measurementOptions)
     evt.preventDefault();
   };
+
+  handleOptionGroupName = function(index, event) {
+    let measurementOptions = this.state.measurementOptions
+
+    measurementOptions[index].name = event.target.value
+    this.setState({
+      measurementOptions: measurementOptions
+    })
+  }
 
   handleUseCaseNameChange = evt => {
     this.setState({ name: evt.target.value });

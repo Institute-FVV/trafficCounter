@@ -50,7 +50,7 @@ class MeasurementOptions extends Component {
         this.setState({ options: newOptions });
 
         // execute parent function in usecaseEditor
-        handleOptionChange(this.state.id, idx, newOptions);
+        handleOptionChange(this.state.id, newOptions);
     };
 
     handleAddMeasurementOption = () => {
@@ -60,9 +60,15 @@ class MeasurementOptions extends Component {
     };
     
     handleRemoveOption = idx => () => {
+        const { handleOptionChange } = this.props
+        let tempOptions = this.state.options.filter((s, sidx) => idx !== sidx)
+
         this.setState({
-            options: this.state.options.filter((s, sidx) => idx !== sidx)
-        });
+            options: tempOptions
+            }
+        );
+
+        handleOptionChange(this.state.id, tempOptions)
     };
 
     render() {
