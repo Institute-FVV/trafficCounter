@@ -28,6 +28,8 @@ const styles = theme => ({
   modalCard: {
     width: '100%',
     maxWidth: 600,
+    maxHeight: "100%",
+    overflow: "scroll"
   },
   modalCardContent: {
     display: 'flex',
