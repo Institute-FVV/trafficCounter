@@ -19,7 +19,7 @@ class MeasurementOptions extends Component {
             id: 0,
             name: "", 
             options: [
-                { name: ""}
+                { name: "" }
             ]
         }
     }
@@ -27,6 +27,7 @@ class MeasurementOptions extends Component {
     componentDidMount() {
         const { id, name, options } = this.props
         
+        // update id, because this is always given
         this.setState({
             id: id,
         })
@@ -40,6 +41,7 @@ class MeasurementOptions extends Component {
         }
     }
     
+    // updates the measurement option on the given index with the given event value
     handleMeasurementOptionChange = idx => evt => {
         const { handleOptionChange } = this.props
         const newOptions = this.state.options.map((option, sidx) => {
@@ -53,13 +55,15 @@ class MeasurementOptions extends Component {
         handleOptionChange(this.state.id, newOptions);
     };
 
+    // add measurement option
     handleAddMeasurementOption = () => {
         this.setState({
             options: this.state.options.concat([{ name: "" }])
         });
     };
     
-    handleRemoveOption = idx => () => {
+    // remove measurement option
+    handleRemoveMeasurementOption = idx => () => {
         const { handleOptionChange } = this.props
         let tempOptions = this.state.options.filter((s, sidx) => idx !== sidx)
 
@@ -68,6 +72,7 @@ class MeasurementOptions extends Component {
             }
         );
 
+        // update parent state
         handleOptionChange(this.state.id, tempOptions)
     };
 
@@ -93,7 +98,7 @@ class MeasurementOptions extends Component {
                             size="small" 
                             color="primary" 
                             type="button"
-                            onClick={this.handleRemoveOption(idx)}
+                            onClick={this.handleRemoveMeasurementOption(idx)}
                         >
                             <DeleteIcon/> Remove Option
                         </Button>

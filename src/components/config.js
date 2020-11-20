@@ -16,5 +16,6 @@ module.exports = {
             idle: 10000
           }
         }
-      },
+    },
+    captcha_site_key: process.env.REACT_APP_CAPTCHA_SITE_KEY || ""
 }

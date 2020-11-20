@@ -54,6 +54,7 @@ database
   });
 });
 
+// forward all requests to the react app
 app.get('*', function(req, res) {
   res.sendFile(path.join(publicFolder, 'build', 'index.html'));
 });

@@ -12,15 +12,15 @@ import MeasurementView from '../pages/measurementView';
 
 const styles = theme => ({
   main: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
     [theme.breakpoints.down('xs')]: {
-      padding: theme.spacing(1),
+      padding: theme.spacing(0.5),
     },
   },
 });
 
 const App = ({ classes }) => (
-  <Fragment>
+<Fragment>
     <CssBaseline />
     <AppHeader />
     <main className={classes.main}>

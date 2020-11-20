@@ -17,24 +17,18 @@ const styles = theme => ({
     flex: 1,
   },
   headerButton: {
-    position: 'absolute',
-    bottom: theme.spacing(0),
-    right: theme.spacing(2),
+    position: 'fixed',
+    top: theme.spacing(-0.5),
+    right: theme.spacing(),
+    color: '#f50057',
     [theme.breakpoints.down('xs')]: {
-      bottom: theme.spacing(-1.5),
-      right: theme.spacing(2),
-    },
+      top: theme.spacing(-1),
+      right: theme.spacing(0),
+    }
   },
   text: {
     fontSize: '4.5em',
-    color: 'white',
-    position: 'absolute',
-    bottom: theme.spacing(0),
-    right: theme.spacing(0),
-    [theme.breakpoints.down('xs')]: {
-      bottom: theme.spacing(-1.5),
-      right: theme.spacing(2),
-    },
+    color: '#f50057',
   },
   toolBar: {
     backgroundColor: "#a30d35",

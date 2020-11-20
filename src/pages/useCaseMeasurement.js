@@ -11,25 +11,44 @@ import { List as ListIcon} from '@material-ui/icons';
 import { compose } from 'recompose';
 import ErrorSnackbar from '../components/errorSnackbar';
 import MeasurementButtons from '../components/measurementButton';
+import UndoIcon from '@material-ui/icons/Undo';
 
 const styles = theme => ({
-  fabEdit: {
+  title: {
     position: 'absolute',
+    top: theme.spacing(4.5),
+    left: theme.spacing(2.5),
+    color: 'white'
+  },
+  fabDelete: {
+    position: 'fixed',
+    top: theme.spacing(0.5),
+    right: theme.spacing(27),
+    [theme.breakpoints.down('xs')]: {
+      top: theme.spacing(0),
+      right: theme.spacing(24),
+    },
+  },
+  fabCount: {
+    position: 'fixed',
     top: theme.spacing(0.5),
     right: theme.spacing(10.5),
     [theme.breakpoints.down('xs')]: {
       top: theme.spacing(0),
-      right: theme.spacing(10.5),
+      right: theme.spacing(9),
     },
   },
-  fabExport: {
-    position: 'absolute',
+  fabList: {
+    position: 'fixed',
     top: theme.spacing(0.5),
     right: theme.spacing(19),
     [theme.breakpoints.down('xs')]: {
       top: theme.spacing(0),
-      right: theme.spacing(19),
+      right: theme.spacing(16.5),
     },
+  },
+  groupTitle: {
+    fontSize: "2.5vh"
   }
 });
 
@@ -40,17 +59,21 @@ class UseCaseMeasurement extends Component {
       useCaseId: '',
       useCaseDetails: '',
       measurements: [],
+      lastMeasurementId: "",
       error: null,
     };
 
     this.saveMeasurement = this.saveMeasurement.bind(this)
+    this.deleteLastMeasurement = this.deleteLastMeasurement.bind(this)
   }
 
   componentDidMount = () => {
     const useCaseId = this.props.match.params.id;
 
     // wait till state is fully set, then load usecases
-    this.setState({useCaseId: useCaseId}, this.getUseCases)
+    this.setState({
+      useCaseId: useCaseId
+    }, this.getUseCase)
   }
 
   async fetch(method, endpoint, body) {
@@ -78,12 +101,26 @@ class UseCaseMeasurement extends Component {
     });
   }
 
-  async getUseCases() {
+  async getUseCase() {
     this.setState({
       useCaseDetails: (await this.fetch('get', '/useCases/' + this.state.useCaseId)) || []
     })
 
     this.getMeasurements()
+  }
+
+  async deleteLastMeasurement() {
+    //only allowed to execute the last measurement by themselves
+    if(this.state.lastMeasurementId) {
+      await this.fetch("DELETE", "/measurements/" + this.state.lastMeasurementId)
+      this.getMeasurements()
+      this.setState({ lastMeasurementId: ""})
+      alert("Your last measurement was delete")
+    } else {
+      this.setState({ error: {
+        message: "You can only delete your own last measurement, please execute a measurement first."
+      }})
+    }
   }
 
   async saveMeasurement (groupName, buttonValue) {
@@ -93,7 +130,11 @@ class UseCaseMeasurement extends Component {
       "value": buttonValue 
     }
     
-    await this.fetch('post', `/measurements/`, postData);
+    let response = await this.fetch('post', `/measurements/`, postData);
+    this.setState({
+      lastMeasurementId: response.id
+    })
+    
     this.getMeasurements()
   }
 
@@ -105,18 +146,27 @@ class UseCaseMeasurement extends Component {
 
     return (
       <Fragment>
-        <Typography variant="h5">Executing measurements for { this.state.useCaseDetails.name} </Typography>
+        <Typography className={classes.title} variant="h6">Measurements { this.state.useCaseDetails.name} </Typography>
+        <Fab
+          color="secondary"
+          aria-label="export"
+          className={classes.fabDelete}
+          onClick={this.deleteLastMeasurement}
+        >
+          <UndoIcon />
+        </Fab>
+
         <Fab
           color="secondary"
           aria-label="edit"
-          className={classes.fabEdit}
+          className={classes.fabCount}
         >
            {this.state.measurements.length}
         </Fab>
         <Fab
           color="secondary"
           aria-label="export"
-          className={classes.fabExport}
+          className={classes.fabList}
           component={Link}
           to={to}
         >
@@ -126,7 +176,7 @@ class UseCaseMeasurement extends Component {
         {this.state.useCaseDetails !== "" ? (
           // measurements present
         
-          this.state.useCaseDetails.measurementOptions.map(function(groupElement, groupIndex) {             
+          this.state.useCaseDetails.measurementOptions.map(function(groupElement, groupIndex, groupArray) {             
             // iteration for groups
 
             let buttons = groupElement.options.map(function(optionElement, opionIndex, optionsArray) {
@@ -134,26 +184,30 @@ class UseCaseMeasurement extends Component {
               return(
                 <MeasurementButtons 
                   onClick={fun_saveMeasurement} 
+                  key={`${opionIndex}-${optionElement.name}`}
                   groupName={groupElement.name} 
                   buttonValue={optionElement.name} 
                   length={optionsArray.length} 
-                  key={`${opionIndex}-${optionElement.name}`}/>
+                  groupLength={groupArray.length}
+                />
               )
             })
 
             return(
               <div key={`${groupIndex}buttonList`}>
-                <Typography>{groupElement.name}</Typography>
-                <Box className={classes.buttonList}>
+                <Typography className={classes.groupTitle}>{groupElement.name}</Typography>
+                <div>
                   {buttons}
-                </Box>
+                </div>
               </div>
             )
           })
 
         ) : (
           // no measurements could be found
-          !this.state.loading && <Typography variant="subtitle1">No measurements have been taken so far</Typography>
+          !this.state.loading && (
+            <Typography variant="subtitle1">No measurements have been taken so far</Typography>
+          )
         )}
 
         {this.state.error && (

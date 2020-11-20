@@ -38,8 +38,6 @@ const styles = theme => ({
   marginTop: {
     marginTop: theme.spacing(2),
   },
-  button: {
-  },
   formGroup: {
     border: 'solid', 
     padding: theme.spacing(1)
@@ -79,7 +77,9 @@ class UseCaseditor extends Component {
     let tmpOptions = this.state.measurementOptions
     
     tmpOptions[groupIndex].options = options
-    this.setState({measurementOptions: tmpOptions})
+    this.setState({
+      measurementOptions: tmpOptions
+    })
   }
 
   // function handling submit of form
@@ -102,7 +102,9 @@ class UseCaseditor extends Component {
   }
 
   handleUseCaseNameChange = evt => {
-    this.setState({ name: evt.target.value });
+    this.setState({ 
+      name: evt.target.value 
+    });
   };
 
   handleAddOptionGroup = () => {
@@ -180,7 +182,6 @@ class UseCaseditor extends Component {
     );
   }
 }
-
 
 export default compose(
   withRouter,

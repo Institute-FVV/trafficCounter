@@ -93,6 +93,8 @@ class MeasurementView extends Component {
     // replace usecase id with usecase name
     measurements.forEach(function (element) {
       element.useCase = useCase.name
+      element.createdAt = element.createdAt.replace("+01", "")
+      element.createdAt = element.createdAt.replace("+02", "")
     })
 
     this.setState({ 
@@ -105,6 +107,11 @@ class MeasurementView extends Component {
   render() {
     const { classes } = this.props;
     const title = "List measurements for " + this.state.useCase.name
+    const today = new Date();
+    const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    const time = today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
+    const dateTime = date + '_' + time;
+    const exportFileName = "list_measurements_" + this.state.useCase.name + "_" + dateTime
 
     return (
       <Fragment>
@@ -121,6 +128,7 @@ class MeasurementView extends Component {
             ]}
             data={this.state.measurements}        
             options={{
+              exportFileName: exportFileName,
               exportButton: true,
               exportAllData: true,
               filtering: true,
@@ -131,7 +139,9 @@ class MeasurementView extends Component {
           />
         ) : (
           // no data available
-          !this.state.loading && <Typography variant="subtitle1">So far no measurements have been recorded for use case {this.state.useCase.name}</Typography>
+          !this.state.loading && (
+            <Typography variant="subtitle1">So far no measurements have been recorded for use case {this.state.useCase.name}</Typography>
+          )
         )}
 
         {this.state.error && (

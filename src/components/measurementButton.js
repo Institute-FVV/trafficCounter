@@ -8,8 +8,11 @@ import {
 const styles = theme => ({
     button: props => ({
       width: (1/(props.length+1))*100 + '%',
-      height: theme.spacing(7),
-      margin: theme.spacing(1, 0.9, 1, 0.1)
+      height: (1/(props.groupLength))*100 - 6 + "vh",
+      overflow: "hidden",
+      minWidth: '0px',
+      margin: theme.spacing(0.2, 0.2, 0.2, 0.2),
+      wordBreak: 'break-all'
     }),
   });
 
@@ -38,7 +41,7 @@ class MeasurementButton extends Component {
         const { classes, buttonValue } = this.props
 
         return (
-            <Button variant="contained" className={classes.button} onClick={this.handleButtonPress} >{buttonValue}</Button>
+            <Button variant="outlined" color="primary" className={classes.button} onClick={this.handleButtonPress} >{buttonValue}</Button>
         )
     }
 };
