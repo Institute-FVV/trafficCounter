@@ -1,0 +1,12 @@
+# -----------------------------------------------------------------------------
+# Secrets are stored here.
+# -----------------------------------------------------------------------------
+NODE_ENV=development
+
+# Optional database configuration.
+PGHOST=fvv-postgres
+PGPORT=5432
+PGUSER=fvv_counter
+PGPASSWORD=password
+
+CAPTCHA_SITE_KEY=
