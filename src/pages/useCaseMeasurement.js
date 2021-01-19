@@ -3,12 +3,11 @@ import { withRouter, Link  } from 'react-router-dom';
 import {
   withStyles,
   Typography,
-  Fab,
-  Box
+  Fab
 } from '@material-ui/core';
 import { List as ListIcon} from '@material-ui/icons';
-
 import { compose } from 'recompose';
+
 import ErrorSnackbar from '../components/errorSnackbar';
 import MeasurementButtons from '../components/measurementButton';
 import UndoIcon from '@material-ui/icons/Undo';
@@ -33,11 +32,16 @@ const styles = theme => ({
     position: 'fixed',
     top: theme.spacing(0.5),
     right: theme.spacing(10.5),
+    "&$disabled": {
+      backgroundColor: "#f50057",
+      color: "white"
+    },
     [theme.breakpoints.down('xs')]: {
       top: theme.spacing(0),
       right: theme.spacing(9),
     },
   },
+  disabled: {},
   fabList: {
     position: 'fixed',
     top: theme.spacing(0.5),
@@ -47,7 +51,7 @@ const styles = theme => ({
       right: theme.spacing(16.5),
     },
   },
-  groupTitle: {
+  measurementGroupTitle: {
     fontSize: "2.5vh"
   }
 });
@@ -55,11 +59,13 @@ const styles = theme => ({
 class UseCaseMeasurement extends Component {
   constructor() {
     super();
+
     this.state = {
       useCaseId: '',
       useCaseDetails: '',
       measurements: [],
       lastMeasurementId: "",
+
       error: null,
     };
 
@@ -141,17 +147,16 @@ class UseCaseMeasurement extends Component {
   render() {
     const { classes } = this.props;
     const to = "/useCases/" + this.state.useCaseId + "/measurements/view"
-
-    let fun_saveMeasurement = this.saveMeasurement
+    let that = this
 
     return (
       <Fragment>
-        <Typography className={classes.title} variant="h6">Measurements { this.state.useCaseDetails.name} </Typography>
+        <Typography className={ classes.title } variant="h6">Measurements { this.state.useCaseDetails.name } </Typography>
         <Fab
           color="secondary"
           aria-label="export"
-          className={classes.fabDelete}
-          onClick={this.deleteLastMeasurement}
+          className={ classes.fabDelete }
+          onClick={ this.deleteLastMeasurement }
         >
           <UndoIcon />
         </Fab>
@@ -159,16 +164,18 @@ class UseCaseMeasurement extends Component {
         <Fab
           color="secondary"
           aria-label="edit"
-          className={classes.fabCount}
+          disabled={true}
+          className={ classes.fabCount }
+          classes={{disabled: classes.disabled}}
         >
-           {this.state.measurements.length}
+          { this.state.measurements.length }
         </Fab>
         <Fab
           color="secondary"
           aria-label="export"
-          className={classes.fabList}
-          component={Link}
-          to={to}
+          className={ classes.fabList }
+          component={ Link }
+          to={ to }
         >
           <ListIcon />
         </Fab>
@@ -183,19 +190,19 @@ class UseCaseMeasurement extends Component {
               // iteration for buttons
               return(
                 <MeasurementButtons 
-                  onClick={fun_saveMeasurement} 
-                  key={`${opionIndex}-${optionElement.name}`}
-                  groupName={groupElement.name} 
-                  buttonValue={optionElement.name} 
-                  length={optionsArray.length} 
-                  groupLength={groupArray.length}
+                  onClick={ that.saveMeasurement} 
+                  key={`${ opionIndex }-${ optionElement.name }`}
+                  groupName={ groupElement.name } 
+                  buttonValue={ optionElement.name } 
+                  length={ optionsArray.length } 
+                  groupLength={ groupArray.length }
                 />
               )
             })
 
             return(
-              <div key={`${groupIndex}buttonList`}>
-                <Typography className={classes.groupTitle}>{groupElement.name}</Typography>
+              <div key={ `${ groupIndex }buttonList` }>
+                <Typography className={classes.measurementGroupTitle}>{ groupElement.name }</Typography>
                 <div>
                   {buttons}
                 </div>
@@ -213,7 +220,7 @@ class UseCaseMeasurement extends Component {
         {this.state.error && (
           <ErrorSnackbar
             onClose={() => this.setState({ error: null })}
-            message={this.state.error.message}
+            message={ this.state.error.message }
           />
         )}
       </Fragment>

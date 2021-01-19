@@ -1,5 +1,6 @@
-import React from 'react';
-import { Link, Route } from 'react-router-dom';
+import React, { Component } from 'react';
+import { compose } from 'recompose';
+import { Link } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -9,13 +10,9 @@ import {
 } from '@material-ui/core';
 import AvTimerIcon from '@material-ui/icons/AvTimer';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
-import { compose } from 'recompose';
 import Help from './help'
 
 const styles = theme => ({
-  flex: {
-    flex: 1,
-  },
   headerButton: {
     position: 'fixed',
     top: theme.spacing(-0.5),
@@ -26,7 +23,7 @@ const styles = theme => ({
       right: theme.spacing(0),
     }
   },
-  text: {
+  helpIcon: {
     fontSize: '4.5em',
     color: '#f50057',
   },
@@ -36,36 +33,54 @@ const styles = theme => ({
   }
 })
 
-const renderHelp = function () {
-  return <Help/>;
+class AppHeader extends Component {
+  constructor() {
+    super()
+
+    this.state = {
+      showHelp: false
+    }
+
+    this.handleChange = this.handleChange.bind(this)
+  }
+
+  handleChange() {
+    this.setState({
+      showHelp: !this.state.showHelp
+    })
+  }
+
+  render() {
+    const { classes } = this.props
+
+    return (
+      <AppBar position="static">
+        <Toolbar className={ classes.toolBar }>
+          <Button color="inherit" component={ Link } to="/">
+            <AvTimerIcon/>
+            <Typography variant="h6" color="inherit">
+              Counter 
+            </Typography>
+          </Button>
+
+          <Button 
+            onClick={ this.handleChange }
+            className={ classes.headerButton }
+          >
+            <HelpOutlineIcon 
+              color="secondary"
+              aria-label="add"
+              className={ classes.helpIcon }
+            />
+          </Button>
+
+          <Help handleChange={ this.handleChange} showModal={ this.state.showHelp }/>
+        </Toolbar>
+      </AppBar>
+    )
+  }
 }
 
-const AppHeader = ({ classes }) => (
-  <AppBar position="static">
-    <Toolbar className={classes.toolBar}>
-      <Button color="inherit" component={Link} to="/">
-        <AvTimerIcon/>
-        <Typography variant="h6" color="inherit">
-          Counter 
-        </Typography>
-      </Button>
-
-      <Button 
-        component={Link}
-        to="/help"
-        className={classes.headerButton}
-      >
-        <HelpOutlineIcon 
-          color="secondary"
-          aria-label="add"
-          className={classes.text}
-        />
-      </Button>
-      <Route exact path="/help" render={renderHelp} />
-    </Toolbar>
-  </AppBar>
-);
-
 export default compose(
-  withStyles(styles),
+  withStyles(styles), 
 )(AppHeader);

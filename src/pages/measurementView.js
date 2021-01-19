@@ -46,17 +46,18 @@ const tableIcons = {
   ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
 };
-
 const styles = theme => ({
 });
 
 class MeasurementView extends Component {
   constructor() {
     super();
+
     this.state = {
-      loading: true,
       useCase: "",
       measurements: [],
+
+      loading: true,
       error: null,
     };
   }
@@ -66,6 +67,8 @@ class MeasurementView extends Component {
   }
 
   async fetch(method, endpoint, body) {
+    this.setState({loading: true})
+
     try {
       const response = await fetch(`/api${endpoint}`, {
         method,
@@ -76,21 +79,27 @@ class MeasurementView extends Component {
         },
       });
 
+      this.setState({loading: false})
       return await response.json();
     } catch (error) {
       console.error(error);
 
-      this.setState({ error });
+      this.setState({ 
+        error: error,
+        loading: false
+      });
     }
   }
 
   async getMeasurements() {
     const useCaseId = this.props.history.location.pathname.split('/')[2];
 
+    // get use case and corresponding measurements
     let useCase = (await this.fetch('get', '/useCases/' + useCaseId)) || []
     let measurements = (await this.fetch('get', '/measurements/?useCaseId=' + useCaseId)) || []
 
     // replace usecase id with usecase name
+    // remove time zone information
     measurements.forEach(function (element) {
       element.useCase = useCase.name
       element.createdAt = element.createdAt.replace("+01", "")
@@ -98,7 +107,6 @@ class MeasurementView extends Component {
     })
 
     this.setState({ 
-      loading: false, 
       useCase: useCase, 
       measurements: measurements
     });
@@ -106,27 +114,27 @@ class MeasurementView extends Component {
 
   render() {
     const { classes } = this.props;
-    const title = "List measurements for " + this.state.useCase.name
+    const title = "List measurements for " + this.state.useCase.name                              // define title of website
     const today = new Date();
     const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
     const time = today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
     const dateTime = date + '_' + time;
-    const exportFileName = "list_measurements_" + this.state.useCase.name + "_" + dateTime
+    const exportFileName = "list_measurements_" + this.state.useCase.name + "_" + dateTime        // define export file name 
 
     return (
       <Fragment>
         {this.state.measurements.length > 0 ? (
           // data available, present table
           <MaterialTable
-            icons={tableIcons}
-            title={title}
+            icons={ tableIcons }
+            title={ title }
             columns={[
               { title: 'Use case', field: 'useCase'},
               { title: 'Measurement group', field: 'groupName'},
               { title: 'Measurement value', field: 'value' },
               { title: 'Created at', field: 'createdAt' }
             ]}
-            data={this.state.measurements}        
+            data={ this.state.measurements }        
             options={{
               exportFileName: exportFileName,
               exportButton: true,
@@ -140,14 +148,14 @@ class MeasurementView extends Component {
         ) : (
           // no data available
           !this.state.loading && (
-            <Typography variant="subtitle1">So far no measurements have been recorded for use case {this.state.useCase.name}</Typography>
+            <Typography variant="subtitle1">So far no measurements have been recorded for use case { this.state.useCase.name }</Typography>
           )
         )}
 
         {this.state.error && (
           <ErrorSnackbar
             onClose={() => this.setState({ error: null })}
-            message={this.state.error.message}
+            message={ this.state.error.message }
           />
         )}
       </Fragment>

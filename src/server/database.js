@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-// reset the automatic conversion of pg and work with the timezones
+// reset the automatic date conversion of pg and work with the timezones
 var pg = require('pg');
 pg.types.setTypeParser(1082, 'text', function(text) {return text;});
 pg.types.setTypeParser(1184, 'text', function(text) {return text;});
@@ -8,7 +8,7 @@ pg.types.setTypeParser(1114, 'text', function(text) {return text;});
 
 exports.database = new Sequelize({
     dialect: 'postgres',
-    database: 'fvv_counter',
+    database: process.env.PGDATABASE || 'fvv_counter',
     username: process.env.PGUSER || 'postgres',
     password: process.env.PGPASSWORD || 'password',
     host: process.env.PGHOST || '/var/run/postgresql',
@@ -24,6 +24,6 @@ exports.database = new Sequelize({
           return next()
         },
     },
-    logging: true,
-    logQueryParameters: true
+    logging: false,
+    logQueryParameters: false
   });

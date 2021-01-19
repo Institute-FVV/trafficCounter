@@ -23,13 +23,13 @@ const App = ({ classes }) => (
 <Fragment>
     <CssBaseline />
     <AppHeader />
-    <main className={classes.main}>
-      <Route exact path="/" component={UseCaseManager} />
-      <Route exact path="/useCases" component={UseCaseManager} />
-      <Route exact path="/useCases/:id/measurements" component={UseCaseMeasurement} />
-      <Route exact path="/useCases/:id" component={UseCaseManager} />
-      <Route exact path="/useCases/:id/copy" render={UseCaseManager} />
-      <Route exact path="/useCases/:id/measurements/view" component={MeasurementView} />
+    <main className={ classes.main }>
+      <Route exact path="/" component={ UseCaseManager } />
+      <Route exact path="/useCases" component={ UseCaseManager } />
+      <Route exact path="/useCases/:id/measurements" component={ UseCaseMeasurement } />
+      <Route exact path="/useCases/:id" component={ UseCaseManager } />
+      <Route exact path="/useCases/:id/copy" render={ UseCaseManager } />
+      <Route exact path="/useCases/:id/measurements/view" component={ MeasurementView } />
     </main>
   </Fragment>
 );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import {
   withStyles,
   Card,
@@ -6,7 +6,7 @@ import {
   CardActions,
   Modal,
   Button,
-  Typography
+  Typography,
 } from '@material-ui/core';
 import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
@@ -31,24 +31,61 @@ const styles = theme => ({
   },
 });
 
-const Help = ({ classes, history }) => (
-  <Modal
-    className={classes.modal}
-    onClose={() => history.goBack()}
-    open
-  >
-    <Card className={`${classes.modalCard} ${classes.marginTop}`}>
-        <CardContent className={classes.modalCardContent}>
-          <Typography>
-            Das ist ein schöner Hilfstext für dieses fantastische App
-          </Typography>
-        </CardContent>          
-        <CardActions>
-          <Button size="small" onClick={() => history.goBack()}><ClearIcon/>Close</Button>
-        </CardActions>
-    </Card>
-  </Modal>
-);
+class Help extends Component {
+  constructor() {
+    super()
+
+    this.state = {
+      showModal: false
+    }
+
+    this.handleChange = this.handleChange.bind(this)
+  }
+
+  componentDidUpdate() {
+    if(this.state.showModal !== this.props.showModal) {
+      this.setState({ showModal: this.props.showModal})
+    }
+  }
+  
+  handleChange() {
+    let parentHandler= this.props.handleChange
+    this.setState({
+      showModal: !this.state.showModal
+    }, parentHandler)
+  }
+
+  render() {
+    const { classes, history } = this.props
+    const APP_VERSION = process.env.REACT_APP_VERSION
+
+    return (
+      <Fragment>
+      {this.state.showModal && (
+        <Modal
+          className={ classes.modal }
+          onClose={() => history.goBack()}
+          open
+        >
+          <Card className={`${ classes.modalCard } ${ classes.marginTop }`}>
+              <CardContent className={ classes.modalCardContent }>
+              <Typography variant="h6">About the app</Typography>
+              <Typography> Provides a simple and easy to use interface for creating custimized measurements. </Typography>
+              <Typography>Measurments are grouped within a use case. For a use case the counting buttons can be defined.</Typography>
+              <Typography> When clicking on a button the timestamp and bottom value is stored. The stored values can be easily exported.</Typography>
+              <Typography>App version: {APP_VERSION}</Typography>
+              </CardContent>          
+              <CardActions>
+                <Button size="small" onClick={ this.handleChange }><ClearIcon/>Close</Button>
+              </CardActions>
+          </Card>
+        </Modal>
+      )}
+
+      </Fragment>
+    )
+  }
+}
 
 export default compose(
   withRouter,

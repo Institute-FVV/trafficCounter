@@ -47,6 +47,7 @@ const styles = theme => ({
 class UseCaseditor extends Component {
   constructor() {
     super();
+
     this.state = {
       id: "",
       name: "",
@@ -152,11 +153,11 @@ class UseCaseditor extends Component {
               {this.state.measurementOptions.map(function(element, index) { 
                 
                 return (
-                  <FormGroup className={classes.formGroup}>
+                  <FormGroup key={`formgroup-${ index }`} className={classes.formGroup}>
                      <TextField
                       required 
                       type="text"
-                      key={`input-optionGroup-${index}`}
+                      key={`input-optionGroup-${ index }`}
                       placeholder="Option group name"
                       label="Option group name"
                       value={element.name}
@@ -165,8 +166,20 @@ class UseCaseditor extends Component {
                       size="small"
                       autoFocus 
                     />
-                    <MeasurementOptions id={index} name={element.name} options={element.options} handleOptionChange={that.handleOptionChange}/>
-                    <Button size="small" color="primary" className={classes.button} onClick={that.handleRemoveOptionGroup(index)}><DeleteIcon/>Remove Option Group</Button>
+                    <MeasurementOptions 
+                      id={index} 
+                      name={element.name} 
+                      options={element.options} 
+                      handleOptionChange={that.handleOptionChange}
+                    />
+                    <Button 
+                      size="small" 
+                      color="primary" 
+                      className={classes.button} 
+                      onClick={that.handleRemoveOptionGroup(index)}
+                    >
+                      <DeleteIcon/>Remove Option Group
+                    </Button>
                   </FormGroup>
                 )
               })}

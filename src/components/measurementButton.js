@@ -41,7 +41,13 @@ class MeasurementButton extends Component {
         const { classes, buttonValue } = this.props
 
         return (
-            <Button variant="outlined" color="primary" className={classes.button} onClick={this.handleButtonPress} >{buttonValue}</Button>
+            <Button variant="outlined" 
+                    color="primary" 
+                    className={classes.button} 
+                    onClick={this.handleButtonPress} 
+            >
+                {buttonValue}
+            </Button>
         )
     }
 };

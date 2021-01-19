@@ -15,6 +15,7 @@ const styles = theme => ({
 class MeasurementOptions extends Component {
     constructor() {
         super();
+        
         this.state = {
             id: 0,
             name: "", 

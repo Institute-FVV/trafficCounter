@@ -6,12 +6,13 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const finale  = require('finale-rest');
-const app = express();
+const { Sequelize } = require('sequelize');
+
 const { database } = require('./database')
 const { UseCase } = require('./models/useCase')
 const { Measurement } = require('./models/measurement');
-const { Sequelize } = require('sequelize');
 
+const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -28,12 +29,14 @@ finale.initialize({
   sequelize: database 
 });
 
-// create endpoints
+// create endpoints for usecase and measurements
 finale.resource({
   model: UseCase,
   endpoints: ['/useCases', '/useCases/:id'],
 });
 
+// provide possibility to only receive mesurements from a given usecase
+// disable pagination so that all that can be received in one step
 finale.resource({
   model: Measurement,
   endpoints: ['/measurements', '/measurements/:id'],
