@@ -172,7 +172,7 @@ class UseCaseManager extends Component {
     let id = match.params.id
     let useCase = find(this.state.useCases, { id: Number(id) });
 
-    if (!useCase || (!useCase && id !== 'new')) {
+    if ((!useCase && match.path.includes("copy")) || (!useCase && id !== 'new')) {
       return <Redirect to="/useCases" />
     }
 
