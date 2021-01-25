@@ -36,7 +36,7 @@
     "react-scripts": "4.0.1",
     "react-select": "^4.0.2",
     "recompose": "^0.30.0",
-    "sequelize": "^6.3.5",
+    "sequelize": "^6.4.0",
     "uuid": "^8.3.2"
   },
   "scripts": {
