@@ -23,6 +23,7 @@ import { captcha_site_key } from '../components/config';
 import UseCaseEditor from '../components/useCaseEditor';
 import ErrorSnackbar from '../components/errorSnackbar';
 import LoadingBar from '../components/loadingBar'
+import InfoSnackbar from '../components/infoSnackbar'
 
 const styles = theme => ({
   useCaseDiv: {
@@ -55,8 +56,9 @@ class UseCaseManager extends Component {
       captureExpired: JSON.parse(localStorage.getItem("captureExpired")),
 
       query: "",
-      useCases: JSON.parse(localStorage.getItem("useCases")) || [],
+      useCases: JSON.parse(localStorage.getItem("useCases")) || [], // store the usecases so that after the load if the editor, they are still present
 
+      success: null,
       loading: false,
       error: null,
     };
@@ -65,6 +67,7 @@ class UseCaseManager extends Component {
   }
 
   componentDidMount() {
+    // if captcha is empty execute the captcha query, prompt users some random pictures
     if(this._reCaptchaRef.current && 
       (this.state.captureExpired === null || this.state.captureExpired === false)) {
       this._reCaptchaRef.current.execute()
@@ -87,7 +90,15 @@ class UseCaseManager extends Component {
       });
 
       this.setState({loading: false})
-      return await response.json();
+
+      if(response.ok && (response.status === 201 || response.status === 200)) {
+        return await response.json();
+      } else {
+        console.error(response.status)
+        this.setState({
+          error: { message: "Error when communicating with backend: " + response.statusText }
+        })
+      }
     } catch (error) {
       console.error(error);
 
@@ -104,14 +115,16 @@ class UseCaseManager extends Component {
         this.setState({
           useCases: useCases || [] 
         }, () => {
-          localStorage.setItem("useCases", JSON.stringify(useCases))
-        });
-      })    
+          // save use cases to local storage so after editor load they are still present
+          localStorage.setItem("useCases", JSON.stringify(useCases));
+      })
+    })   
   }
 
-  onSaveUseCase  = async (id, name, measurementOptions) => {
+  onSaveUseCase  = async (id, name, pinCode, measurementOptions) => {
     var postData = {
       name: name,
+      pinCode: pinCode,
       measurementOptions: measurementOptions
     }
 
@@ -121,8 +134,10 @@ class UseCaseManager extends Component {
       await this.fetch('post', '/useCases', postData);
     }
 
-    this.props.history.goBack();
     this.getUseCases();    
+    if(this.state.error === null) {
+      this.props.history.goBack();      
+    }
   }
 
   async deleteUseCase(useCase) {
@@ -136,6 +151,12 @@ class UseCaseManager extends Component {
       measurements.forEach(function(element) {
         that.fetch('delete', `/measurements/${ element.id }`);
       })
+
+      if(this.state.error === null) {
+        this.setState({
+          success: "Use case successfully deleted"
+        })
+      }
 
       this.getUseCases();
     }
@@ -155,6 +176,7 @@ class UseCaseManager extends Component {
         captureExpired: false,
         captureLoad: true
       }, () => {
+        // store the captcha values in the local storage so that after reload they are not requested again
         localStorage.setItem("captureValue", value)
         localStorage.setItem("captureExpired", false)
         localStorage.setItem("captureLoad", true)
@@ -183,7 +205,13 @@ class UseCaseManager extends Component {
       useCase.id = ""
     }
 
-    return <UseCaseEditor useCase={ useCase } onSave={ this.onSaveUseCase } />;
+    return (
+      <UseCaseEditor 
+        useCase={ useCase } 
+        errorMessage={ this.state.error } 
+        onSave={ this.onSaveUseCase } 
+      />
+    )
   };
 
   render() {
@@ -196,6 +224,7 @@ class UseCaseManager extends Component {
     return (
       <Fragment>
         <Typography variant="h4">Use Cases</Typography>
+        { /* captcha section */ }
         { (this.state.captureExpired === null || this.state.captureExpired === true) && (
           <ReCAPTCHA  
             ref={ this._reCaptchaRef }
@@ -204,7 +233,9 @@ class UseCaseManager extends Component {
             onChange={ this.handleCaptchaChange }
           />
         )}
-        {this.state.useCases.length > 0 ? (
+
+        { /* use case area */ }
+        { this.state.useCases.length > 0 ? (
           // usecases available
           <Paper elevation={ 1 } className={ classes.useCaseDiv }>
             <div className={ classes.serachDiv }>
@@ -255,7 +286,7 @@ class UseCaseManager extends Component {
           )
         )}
         
-        {(this.state.captureExpired !== null && this.state.captureExpired === false) && (
+        { (this.state.captureExpired !== null && this.state.captureExpired === false) && (
           <Fragment>
             <Fab
               color="secondary"
@@ -274,14 +305,24 @@ class UseCaseManager extends Component {
           </Fragment>
         )}
 
-        {this.state.loading && (
+        { /* Flag based display of loadingbar */ }
+        { this.state.loading && (
           <LoadingBar/>
         )}    
         
-        {this.state.error && (
+        { /* Flag based display of error snackbar */ }
+        { this.state.error && (
           <ErrorSnackbar
             onClose={() => this.setState({ error: null })}
             message={ this.state.error.message }
+          />
+        )}
+
+        { /* Flag based display of info snackbar */ }
+        { this.state.success && (
+          <InfoSnackbar
+            onClose={() => this.setState({ success: null })}
+            message={ this.state.success }
           />
         )}
       </Fragment>

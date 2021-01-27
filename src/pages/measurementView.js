@@ -25,6 +25,7 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import MaterialTable from 'material-table'
 
 import ErrorSnackbar from '../components/errorSnackbar';
+import LoadingBar from '../components/loadingBar'
 
 // definition used for material table
 const tableIcons = {
@@ -80,7 +81,17 @@ class MeasurementView extends Component {
       });
 
       this.setState({loading: false})
-      return await response.json();
+      
+      if(response.ok && (response.status === 201 || response.status === 200)) {
+        return await response.json();
+      } else {
+        console.error(response.status)
+        this.setState({
+          error: { message: "Error when communicating with backend: " + response.statusText }
+        })
+
+        throw new Error("Error communicating with backend")
+      }
     } catch (error) {
       console.error(error);
 
@@ -92,34 +103,43 @@ class MeasurementView extends Component {
   }
 
   async getMeasurements() {
-    const useCaseId = this.props.history.location.pathname.split('/')[2];
+    const useCaseId = this.props.match.params.id
 
     // get use case and corresponding measurements
-    let useCase = (await this.fetch('get', '/useCases/' + useCaseId)) || []
-    let measurements = (await this.fetch('get', '/measurements/?useCaseId=' + useCaseId)) || []
+    let useCase = (await this.fetch('get', '/usecases/' + useCaseId + "/measurements")) || []
+    let measurements = useCase.measurements
+    let tableOutput = []
 
-    // replace usecase id with usecase name
-    // remove time zone information
-    measurements.forEach(function (element) {
-      element.useCase = useCase.name
-      element.createdAt = element.createdAt.replace("+01", "")
-      element.createdAt = element.createdAt.replace("+02", "")
-    })
+    if(measurements) {
+      measurements.forEach(measurement => {
+          tableOutput.push({
+            useCase: useCase.name,
+            groupName: measurement.groupName,
+            value: measurement.value,
+            timestamp: measurement.timestamp.split("+")[0]
+          })
+      })
 
-    this.setState({ 
-      useCase: useCase, 
-      measurements: measurements
-    });
+      this.setState({ 
+        useCase: useCase, 
+        measurements: measurements,
+        tableOutput: tableOutput
+      });
+    }
+  }
+
+  getDateTime() {
+    const today = new Date();
+    const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    const time = today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
+    
+    return date + '_' + time;
   }
 
   render() {
     const { classes } = this.props;
     const title = "List measurements for " + this.state.useCase.name                              // define title of website
-    const today = new Date();
-    const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-    const time = today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds();
-    const dateTime = date + '_' + time;
-    const exportFileName = "list_measurements_" + this.state.useCase.name + "_" + dateTime        // define export file name 
+    const exportFileName = "list_measurements_" + this.state.useCase.name + "_" + this.getDateTime()        // define export file name 
 
     return (
       <Fragment>
@@ -132,9 +152,9 @@ class MeasurementView extends Component {
               { title: 'Use case', field: 'useCase'},
               { title: 'Measurement group', field: 'groupName'},
               { title: 'Measurement value', field: 'value' },
-              { title: 'Created at', field: 'createdAt' }
+              { title: 'Timestamp', field: 'timestamp' }
             ]}
-            data={ this.state.measurements }        
+            data={ this.state.tableOutput }        
             options={{
               exportFileName: exportFileName,
               exportButton: true,
@@ -152,11 +172,17 @@ class MeasurementView extends Component {
           )
         )}
 
+        { /* Flag based display of error snackbar */ }
         {this.state.error && (
           <ErrorSnackbar
             onClose={() => this.setState({ error: null })}
             message={ this.state.error.message }
           />
+        )}
+
+        { /* Flag based display of loadingbar */ }
+        {this.state.loading && (
+          <LoadingBar/>
         )}
       </Fragment>
     );

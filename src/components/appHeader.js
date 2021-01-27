@@ -74,7 +74,10 @@ class AppHeader extends Component {
             />
           </Button>
 
-          <Help handleChange={ this.handleChange} showModal={ this.state.showHelp }/>
+          <Help 
+            handleChange={ this.handleChange } 
+            showModal={ this.state.showHelp }
+          />
         </Toolbar>
       </AppBar>
     )

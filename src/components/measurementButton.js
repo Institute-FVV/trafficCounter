@@ -3,6 +3,7 @@ import { compose } from 'recompose';
 import {
   withStyles,
   Button,
+  Icon
 } from '@material-ui/core';
 
 const styles = theme => ({
@@ -21,14 +22,16 @@ class MeasurementButton extends Component {
         super();
         this.state = {
             groupName: '',
-            buttonValue: ''
+            buttonValue: '',
+            icon: '',
         }
     }
 
     componentDidMount() {
         this.setState({ 
             groupName: this.props.groupName,
-            buttonValue: this.props.buttonValue
+            buttonValue: this.props.buttonValue.name,
+            icon: this.props.buttonValue.icon,
         })
     }
 
@@ -38,15 +41,20 @@ class MeasurementButton extends Component {
     }
 
     render() {
-        const { classes, buttonValue } = this.props
+        const { classes, displayIcon } = this.props
 
         return (
             <Button variant="outlined" 
                     color="primary" 
-                    className={classes.button} 
+                    className={ classes.button } 
                     onClick={this.handleButtonPress} 
             >
-                {buttonValue}
+                { this.state.buttonValue }
+
+                { /* display icons only if user wants that */}
+                {displayIcon && (
+                    <Icon>{this.state.icon}</Icon>
+                )}
             </Button>
         )
     }

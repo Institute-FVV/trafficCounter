@@ -5,12 +5,10 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const finale  = require('finale-rest');
-const { Sequelize } = require('sequelize');
 
 const { database } = require('./database')
-const { UseCase } = require('./models/useCase')
-const { Measurement } = require('./models/measurement');
+const usecaseApi = require('./routes/useCaseRoutes')
+const measurementApi = require('./routes/measurementRoutes');
 
 const app = express();
 app.use(cors());
@@ -22,40 +20,15 @@ let publicFolder = path.resolve(__dirname, '..')
 publicFolder = path.resolve(publicFolder, '..')
 app.use(express.static(path.join(publicFolder, 'build')));
 
-// define base api 
-finale.initialize({ 
-  app: app,
-  base: '/api',
-  sequelize: database 
-});
+// serve api 
+app.use('/api/useCases', usecaseApi)
+app.use('/api/measurements', measurementApi)
 
-// create endpoints for usecase and measurements
-finale.resource({
-  model: UseCase,
-  endpoints: ['/useCases', '/useCases/:id'],
-});
-
-// provide possibility to only receive mesurements from a given usecase
-// disable pagination so that all that can be received in one step
-finale.resource({
-  model: Measurement,
-  endpoints: ['/measurements', '/measurements/:id'],
-  search: {
-    param: 'useCaseId',
-    operator: Sequelize.Op.eq,
-    attributes: ["useCase"]
-  },
-  pagination: false
-});
-
-// start express server
-database
-  .sync({ })
-  .then(() => {
-    app.listen(port, () => {
-     console.log(`Listening on port ${port}`);
-  });
-});
+database.sync().then(function(){
+  app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
+ });
+})
 
 // forward all requests to the react app
 app.get('*', function(req, res) {

@@ -5,13 +5,18 @@ import {
   Typography,
   Fab
 } from '@material-ui/core';
-import { List as ListIcon} from '@material-ui/icons';
+import ListIcon from '@material-ui/icons/List';
+import ShareIcon from '@material-ui/icons/Share';
+import TouchAppIcon from '@material-ui/icons/TouchApp';
+import UndoIcon from '@material-ui/icons/Undo';
 import { compose } from 'recompose';
 
 import ErrorSnackbar from '../components/errorSnackbar';
 import MeasurementButtons from '../components/measurementButton';
-import UndoIcon from '@material-ui/icons/Undo';
+import LoadingBar from '../components/loadingBar'
+import InfoSnackbar from '..//components/infoSnackbar'
 
+const REXECUTION_TIMEOUT = 5000   // rexecution timeout for retry of the failed fetch calls
 const styles = theme => ({
   title: {
     position: 'absolute',
@@ -22,7 +27,7 @@ const styles = theme => ({
   fabDelete: {
     position: 'fixed',
     top: theme.spacing(0.5),
-    right: theme.spacing(27),
+    right: theme.spacing(26.5),
     [theme.breakpoints.down('xs')]: {
       top: theme.spacing(0),
       right: theme.spacing(24),
@@ -45,10 +50,28 @@ const styles = theme => ({
   fabList: {
     position: 'fixed',
     top: theme.spacing(0.5),
-    right: theme.spacing(19),
+    right: theme.spacing(18.5),
     [theme.breakpoints.down('xs')]: {
       top: theme.spacing(0),
       right: theme.spacing(16.5),
+    },
+  },
+  fabShare: {
+    position: 'fixed',
+    top: theme.spacing(0.5),
+    right: theme.spacing(34.5),
+    [theme.breakpoints.down('xs')]: {
+      top: theme.spacing(0),
+      right: theme.spacing(25.5),
+    },
+  },
+  fabToogle: {
+    position: 'fixed',
+    top: theme.spacing(0.5),
+    right: theme.spacing(42.5),
+    [theme.breakpoints.down('xs')]: {
+      top: theme.spacing(0),
+      right: theme.spacing(32.5),
     },
   },
   measurementGroupTitle: {
@@ -65,24 +88,53 @@ class UseCaseMeasurement extends Component {
       useCaseDetails: '',
       measurements: [],
       lastMeasurementId: "",
+      pinCode: null,
+      displayIcon: true,
 
+      success: null,
       error: null,
+      loading: false,
     };
 
     this.saveMeasurement = this.saveMeasurement.bind(this)
     this.deleteLastMeasurement = this.deleteLastMeasurement.bind(this)
+    this.shareLink = this.shareLink.bind(this)
+    this.toogleIconView = this.toogleIconView.bind(this)
   }
 
   componentDidMount = () => {
     const useCaseId = this.props.match.params.id;
+    let body = {
+      pinCode: this.state.pinCode
+    }
 
-    // wait till state is fully set, then load usecases
+    body.pinCode = new URLSearchParams(this.props.location.search).get("pinCode")
+    if(!body.pinCode) {
+      body.pinCode = prompt("Please provide the secure pincode of this use case to access the measurement area")
+    } 
+
     this.setState({
-      useCaseId: useCaseId
-    }, this.getUseCase)
+      pinCode: body.pinCode
+    })
+
+    // check if correct pin has been provided
+    this.fetch('post', '/useCases/' + useCaseId + '/authorize', body)
+    .then(response => {
+        // if succesfully set useCase ID and load cases, otherwise show error
+        this.setState({
+          useCaseId: useCaseId
+        }, this.getUseCase)
+    })
+    .catch(error => {
+      this.setState({
+        error: { message: "Wrong pinCode provide there for no access granted"}
+      })
+    })
   }
 
   async fetch(method, endpoint, body) {
+    this.setState({loading: true})
+
     try {
       const response = await fetch(`/api${endpoint}`, {
         method,
@@ -93,17 +145,54 @@ class UseCaseMeasurement extends Component {
         },
       });
 
-      return await response.json();
+      this.setState({loading: false})
+
+      if(response.ok && (response.status === 201 || response.status === 200)) {
+        return await response.json();
+      } else {
+        console.error(response.status)
+        this.setState({
+          error: { message: "Error when communicating with backend: " + response.statusText }
+        })
+
+        throw new Error("Error communicating with backend")
+      }
     } catch (error) {
       console.error(error);
 
-      this.setState({ error });
+      this.setState({ 
+        error: error,
+        loading: false,
+      });
+
+      throw error
     }
   }
 
+  // recursive extension of the fetch method
+  // allows to reexecute failed fetch calls until they succeded
+  async fetch_retry (method, endpoint, body) {
+    try {
+        return await this.fetch(method, endpoint, body)
+    } 
+    catch(err) {
+      // retry after some wait period
+      await this.sleep(REXECUTION_TIMEOUT)
+        return this.fetch_retry(method, endpoint, body)  
+    }
+  }
+
+  // function which sleeps some defined milliseconds
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   async getMeasurements() {
+    let measurements = await this.fetch('get', '/useCases/' + this.state.useCaseId + '/measurements')
+    measurements = measurements.measurements
+
     this.setState({
-      measurements: (await this.fetch('get', '/measurements/?useCaseId=' + this.state.useCaseId)) || []
+      measurements: measurements || []
     });
   }
 
@@ -116,16 +205,21 @@ class UseCaseMeasurement extends Component {
   }
 
   async deleteLastMeasurement() {
-    //only allowed to execute the last measurement by themselves
+    //only allowed to delete the last measurement by themselves
     if(this.state.lastMeasurementId) {
       await this.fetch("DELETE", "/measurements/" + this.state.lastMeasurementId)
+
       this.getMeasurements()
-      this.setState({ lastMeasurementId: ""})
-      alert("Your last measurement was delete")
+      this.setState({ 
+        lastMeasurementId: "",
+        success: "Your last measurement was successfully deleted"
+      })
     } else {
-      this.setState({ error: {
-        message: "You can only delete your own last measurement, please execute a measurement first."
-      }})
+      this.setState({ 
+        error: {
+          message: "You can only delete your own last measurement, please execute a measurement first"
+        }
+      })
     }
   }
 
@@ -133,15 +227,37 @@ class UseCaseMeasurement extends Component {
     let postData = {
       "useCase": this.state.useCaseId,
       "groupName": groupName,
+      "timestamp": Date.now(),      // set measurement time in frontend
       "value": buttonValue 
     }
     
-    let response = await this.fetch('post', `/measurements/`, postData);
-    this.setState({
-      lastMeasurementId: response.id
+    // post data as long till it is successfull
+    await this.fetch_retry('post', `/measurements/`, postData)
+    .then(response => {
+      this.setState({
+        lastMeasurementId: response.id
+      })
+      
+      this.getMeasurements()
     })
-    
-    this.getMeasurements()
+  }
+
+  // copy the direct link to a use case measurement to the clipboard
+  // the link includes the PIN code
+  shareLink() {
+    let url = window.location.href + "?pinCode=" + this.state.pinCode
+    navigator.clipboard.writeText(url)
+
+    this.setState({
+      success: "Direct link copied to clipboard"
+    })
+  }
+
+  // toogle if icons should be displayed or not
+  toogleIconView() {
+    this.setState({
+      displayIcon: !this.state.displayIcon
+    })
   }
 
   render() {
@@ -152,6 +268,26 @@ class UseCaseMeasurement extends Component {
     return (
       <Fragment>
         <Typography className={ classes.title } variant="h6">Measurements { this.state.useCaseDetails.name } </Typography>
+
+        { /* action items */ }
+        <Fab
+          color="secondary"
+          aria-label="export"
+          className={ classes.fabToogle }
+          onClick={ this.toogleIconView }
+        >
+          <TouchAppIcon />
+        </Fab>
+
+        <Fab
+          color="secondary"
+          aria-label="export"
+          className={ classes.fabShare }
+          onClick={ this.shareLink }
+        >
+          <ShareIcon />
+        </Fab>
+
         <Fab
           color="secondary"
           aria-label="export"
@@ -188,14 +324,16 @@ class UseCaseMeasurement extends Component {
 
             let buttons = groupElement.options.map(function(optionElement, opionIndex, optionsArray) {
               // iteration for buttons
+              
               return(
                 <MeasurementButtons 
                   onClick={ that.saveMeasurement} 
                   key={`${ opionIndex }-${ optionElement.name }`}
                   groupName={ groupElement.name } 
-                  buttonValue={ optionElement.name } 
+                  buttonValue={ optionElement }
                   length={ optionsArray.length } 
                   groupLength={ groupArray.length }
+                  displayIcon={ that.state.displayIcon }
                 />
               )
             })
@@ -217,10 +355,24 @@ class UseCaseMeasurement extends Component {
           )
         )}
 
+        { /* Flag based display of loadingbar */ }
+        {this.state.loading && (
+          <LoadingBar/>
+        )}
+
+        { /* Flag based display of error snackbar */ }
         {this.state.error && (
           <ErrorSnackbar
             onClose={() => this.setState({ error: null })}
             message={ this.state.error.message }
+          />
+        )}
+
+        { /* Flag based display of info snackbar */ }
+        {this.state.success && (
+          <InfoSnackbar
+            onClose={() => this.setState({ success: null })}
+            message={ this.state.success }
           />
         )}
       </Fragment>

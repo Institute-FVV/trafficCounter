@@ -27,7 +27,7 @@ const styles = theme => ({
   },
   modalCard: {
     width: '100%',
-    maxWidth: 600,
+    maxWidth: 800,
     maxHeight: "100%",
     overflow: "scroll"
   },
@@ -41,6 +41,9 @@ const styles = theme => ({
   formGroup: {
     border: 'solid', 
     padding: theme.spacing(1)
+  },
+  inputField: {
+    marginTop: theme.spacing(1)
   }
 });
 
@@ -51,8 +54,9 @@ class UseCaseditor extends Component {
     this.state = {
       id: "",
       name: "",
+      pinCode: "",
       measurementOptions: [
-        { id: 0, name: "", options: [ { name: ""}] }
+        { id: 0, name: "", options: [ { name: "", icon: ""}]}
       ]
     };
 
@@ -85,12 +89,13 @@ class UseCaseditor extends Component {
 
   // function handling submit of form
   handleSubmit = evt => {
+    evt.preventDefault();
+
     const { onSave } = this.props
-    const { id, name, measurementOptions } = this.state;
+    const { id, name, pinCode, measurementOptions } = this.state;
 
     // execute parent function in useCaseManager
-    onSave(id, name, measurementOptions)
-    evt.preventDefault();
+    onSave(id, name, pinCode, measurementOptions)
   };
 
   handleOptionGroupName = function(index, event) {
@@ -102,11 +107,15 @@ class UseCaseditor extends Component {
     })
   }
 
-  handleUseCaseNameChange = evt => {
-    this.setState({ 
-      name: evt.target.value 
-    });
-  };
+  handleChange = (evt) => {
+    const target = evt.target
+    const name = target.name
+    let value = target.value
+
+    this.setState({
+      [name]: value
+    })
+  }
 
   handleAddOptionGroup = () => {
     let idx = this.state.measurementOptions.length
@@ -123,7 +132,7 @@ class UseCaseditor extends Component {
   };
 
   render() {
-    const { classes, history} = this.props;
+    const { classes, history, errorMessage} = this.props;
     var that = this
 
     return (
@@ -138,16 +147,32 @@ class UseCaseditor extends Component {
               <TextField
                 required 
                 type="text"
+                name="name"
                 key="inputUseCase"
                 placeholder="Use Case Name"
                 label="Use Case Name"
                 value={this.state.name}
-                onChange={this.handleUseCaseNameChange}
+                onChange={this.handleChange}
                 variant="outlined"
                 size="small"
                 autoFocus 
               />
-                
+
+            <TextField
+                required 
+                type="number"
+                key="inputUseCasePinCode"
+                name="pinCode"
+                placeholder="Use Case Pin Code"
+                label="Use Case Pin Code"
+                className={ classes.inputField }
+                value={ this.state.pinCode }
+                onChange={ this.handleChange }
+                error={ errorMessage }
+                variant="outlined"
+                size="small"
+              />
+
               <Typography variant="subtitle1" >Measurement Options</Typography>
 
               {this.state.measurementOptions.map(function(element, index) { 
@@ -164,22 +189,24 @@ class UseCaseditor extends Component {
                       onChange={(evt) => that.handleOptionGroupName(index, evt)}
                       variant="outlined"
                       size="small"
-                      autoFocus 
                     />
-                    <MeasurementOptions 
-                      id={index} 
-                      name={element.name} 
-                      options={element.options} 
-                      handleOptionChange={that.handleOptionChange}
-                    />
-                    <Button 
-                      size="small" 
-                      color="primary" 
-                      className={classes.button} 
-                      onClick={that.handleRemoveOptionGroup(index)}
-                    >
-                      <DeleteIcon/>Remove Option Group
-                    </Button>
+
+                    <div>
+                      <MeasurementOptions 
+                        id={index} 
+                        name={element.name} 
+                        options={element.options} 
+                        handleOptionChange={that.handleOptionChange}
+                      />
+                      <Button 
+                        size="small" 
+                        color="primary" 
+                        className={classes.button} 
+                        onClick={that.handleRemoveOptionGroup(index)}
+                      >
+                        <DeleteIcon/>Remove Option Group
+                      </Button>
+                    </div>
                   </FormGroup>
                 )
               })}

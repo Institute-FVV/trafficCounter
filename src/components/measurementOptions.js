@@ -2,15 +2,29 @@ import React, { Component } from 'react';
 import {
   TextField,
   withStyles,
-  Button
+  Button,
+  InputLabel,
+  MenuItem,
+  Select
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
+import Icon from '@material-ui/core/Icon';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
 
 const styles = theme => ({
+    iconLabel: {
+        display: "inline"
+    },
+    options: {
+        marginTop: theme.spacing(1.5)
+    }
 });
+
+// Definition of Icons which can be used for buttons
+// sourcehttps://material.io/resources/icons/?search=arrow&icon=arrow_downward&style=baseline
+const ICONS = ["", "accessibility", "accessible", "arrow_back", "arrow_forward", "arrow_upward", "arrow_downward"]
 
 class MeasurementOptions extends Component {
     constructor() {
@@ -20,8 +34,8 @@ class MeasurementOptions extends Component {
             id: 0,
             name: "", 
             options: [
-                { name: "" }
-            ]
+                { name: "", icon: "" }
+            ],
         }
     }
 
@@ -46,8 +60,14 @@ class MeasurementOptions extends Component {
     handleMeasurementOptionChange = idx => evt => {
         const { handleOptionChange } = this.props
         const newOptions = this.state.options.map((option, sidx) => {
-            if (idx !== sidx) return option;
-            return { ...option, name: evt.target.value };
+            if (idx !== sidx) return option
+            
+            // check which information has been updated, either option name or option icon
+            if(evt.target.name === "optionName") {
+                return { name: evt.target.value, icon: option.icon }
+            } else {
+                return { name: option.name, icon: evt.target.value }
+            }
         });
     
         this.setState({ options: newOptions });
@@ -83,17 +103,36 @@ class MeasurementOptions extends Component {
         return (
             <div>
                 {this.state.options.map((option, idx) => (
-                    <div className="options" key={`div-${idx + 1}`}>
+                    <div className={ classes.options } key={`div-${idx + 1}`}>
                         <TextField
                             required 
                             key={this.idx + 1}
+                            name="optionName"
                             type="text"
+                            label="Option name"
                             placeholder={`Option #${idx + 1} name`}
                             value={option.name}
                             onChange={this.handleMeasurementOptionChange(idx)}
                             variant="outlined"
                             size="small"
                         />
+
+                        <InputLabel id="labelIconOption" className={classes.iconLabel }>Icon</InputLabel>
+                        <Select
+                            labelId="labelIconOption"
+                            name="optionIcon"
+                            id="optionIcon"
+                            value={ option.icon }
+                            onChange={ this.handleMeasurementOptionChange(idx) }
+                        >
+                        {
+                            ICONS.map((icon, i) => (
+                                <MenuItem key={ i } value={ icon }>
+                                    { <Icon>{icon}</Icon> }
+                                </MenuItem>
+                            ))
+                        }
+                        </Select>
                         
                         <Button 
                             size="small" 
