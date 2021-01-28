@@ -89,7 +89,7 @@ class UseCaseMeasurement extends Component {
       measurements: [],
       lastMeasurementId: "",
       pinCode: null,
-      displayIcon: true,
+      displayText: true,
 
       success: null,
       error: null,
@@ -253,10 +253,10 @@ class UseCaseMeasurement extends Component {
     })
   }
 
-  // toogle if icons should be displayed or not
+  // toogle if text should be displayed or not
   toogleIconView() {
     this.setState({
-      displayIcon: !this.state.displayIcon
+      displayText: !this.state.displayText
     })
   }
 
@@ -333,7 +333,7 @@ class UseCaseMeasurement extends Component {
                   buttonValue={ optionElement }
                   length={ optionsArray.length } 
                   groupLength={ groupArray.length }
-                  displayIcon={ that.state.displayIcon }
+                  displayText={ that.state.displayText }
                 />
               )
             })

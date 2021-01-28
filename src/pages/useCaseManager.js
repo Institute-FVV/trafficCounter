@@ -144,11 +144,12 @@ class UseCaseManager extends Component {
     var that = this
 
     if (window.confirm(`Are you sure you want to delete "${ useCase.name }"`)) {
+      // delete also all measurements
+      let measurements = await this.fetch('get', `/useCases/${ useCase.id }/measurements`);
+
       this.fetch('delete', `/useCases/${useCase.id}`);
 
-      // delete also all measurements
-      let measurements = await this.fetch('get', `/measurements?useCaseId=${ useCase.id }`);
-      measurements.forEach(function(element) {
+      measurements.measurementOptions.forEach(function(element) {
         that.fetch('delete', `/measurements/${ element.id }`);
       })
 

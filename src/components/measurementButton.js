@@ -41,7 +41,7 @@ class MeasurementButton extends Component {
     }
 
     render() {
-        const { classes, displayIcon } = this.props
+        const { classes, displayText } = this.props
 
         return (
             <Button variant="outlined" 
@@ -49,12 +49,12 @@ class MeasurementButton extends Component {
                     className={ classes.button } 
                     onClick={this.handleButtonPress} 
             >
-                { this.state.buttonValue }
-
-                { /* display icons only if user wants that */}
-                {displayIcon && (
-                    <Icon>{this.state.icon}</Icon>
+                { /* display text only if user wants that */}
+                {displayText && (
+                    this.state.buttonValue
                 )}
+
+                <Icon>{this.state.icon}</Icon>
             </Button>
         )
     }
