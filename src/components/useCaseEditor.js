@@ -160,7 +160,7 @@ class UseCaseditor extends Component {
 
             <TextField
                 required 
-                type="number"
+                type="text"
                 key="inputUseCasePinCode"
                 name="pinCode"
                 placeholder="Use Case Pin Code"

@@ -56,7 +56,7 @@ class UseCaseManager extends Component {
       captureExpired: JSON.parse(localStorage.getItem("captureExpired")),
 
       query: "",
-      useCases: JSON.parse(localStorage.getItem("useCases")) || [], // store the usecases so that after the load if the editor, they are still present
+      useCases: [],
 
       success: null,
       loading: false,
@@ -114,10 +114,7 @@ class UseCaseManager extends Component {
       .then(useCases => {
         this.setState({
           useCases: useCases || [] 
-        }, () => {
-          // save use cases to local storage so after editor load they are still present
-          localStorage.setItem("useCases", JSON.stringify(useCases));
-      })
+        })
     })   
   }
 
@@ -278,8 +275,11 @@ class UseCaseManager extends Component {
                 </ListItem>
               ))}
             </List>
-          </Paper>
-          
+
+            { /* must be placed here so that the state is correctly loaded */}
+            <Route exact path="/useCases/:id/copy" render={ this.renderUseCaseEditor } />
+            <Route exact path="/useCases/:id" render={ this.renderUseCaseEditor } />
+          </Paper>          
         ) : (
           // no usecases available
           !this.state.loading && (
@@ -298,10 +298,6 @@ class UseCaseManager extends Component {
             >
               <AddIcon />
             </Fab>
-
-            { /* must be placed here so that the state is correctly loaded */}
-            <Route exact path="/useCases/:id/copy" render={ this.renderUseCaseEditor } />
-            <Route exact path="/useCases/:id" render={ this.renderUseCaseEditor } />
 
           </Fragment>
         )}
