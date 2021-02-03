@@ -24,7 +24,12 @@ const styles = theme => ({
 
 // Definition of Icons which can be used for buttons
 // source https://material.io/resources/icons/?icon=arrow_downward&style=baseline
-const ICONS = ["", "accessibility", "accessible", "arrow_back", "arrow_forward", "arrow_upward", "arrow_downward"]
+const ICONS = ["", "arrow_back", "arrow_forward", "arrow_upward", "arrow_downward", 
+              "swap_horiz", "swap_vert", "accessible", "commute", "flight_land", 
+              "flight_takeoff", "work", "login", "logout", "pedal_bike", "directions_walk", 
+              "directions_car", "directions_bus", "directions_railway", "tram", "electric_bike", 
+              "electric_car", "local_taxi", "electric_scooter", "two_wheeler", "north_east", "north_west", 
+              "south_east", "south_west", "child_friendly", "elderly", "skateboarding"]
 
 class MeasurementOptions extends Component {
     constructor() {
