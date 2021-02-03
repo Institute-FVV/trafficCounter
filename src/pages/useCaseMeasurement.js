@@ -15,6 +15,7 @@ import ErrorSnackbar from '../components/errorSnackbar';
 import MeasurementButtons from '../components/measurementButton';
 import LoadingBar from '../components/loadingBar'
 import InfoSnackbar from '..//components/infoSnackbar'
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
 
 const REXECUTION_TIMEOUT = 5000   // rexecution timeout for retry of the failed fetch calls
 const styles = theme => ({
@@ -29,8 +30,7 @@ const styles = theme => ({
     top: theme.spacing(0.5),
     right: theme.spacing(26.5),
     [theme.breakpoints.down('xs')]: {
-      top: theme.spacing(0),
-      right: theme.spacing(24),
+      right: theme.spacing(16.5),
     },
   },
   fabCount: {
@@ -42,7 +42,6 @@ const styles = theme => ({
       color: "white"
     },
     [theme.breakpoints.down('xs')]: {
-      top: theme.spacing(0),
       right: theme.spacing(9),
     },
   },
@@ -52,8 +51,7 @@ const styles = theme => ({
     top: theme.spacing(0.5),
     right: theme.spacing(18.5),
     [theme.breakpoints.down('xs')]: {
-      top: theme.spacing(0),
-      right: theme.spacing(16.5),
+      visibility: "hidden"
     },
   },
   fabShare: {
@@ -61,8 +59,7 @@ const styles = theme => ({
     top: theme.spacing(0.5),
     right: theme.spacing(34.5),
     [theme.breakpoints.down('xs')]: {
-      top: theme.spacing(0),
-      right: theme.spacing(25.5),
+      visibility: "hidden"
     },
   },
   fabToogle: {
@@ -70,8 +67,15 @@ const styles = theme => ({
     top: theme.spacing(0.5),
     right: theme.spacing(42.5),
     [theme.breakpoints.down('xs')]: {
-      top: theme.spacing(0),
-      right: theme.spacing(32.5),
+      right: theme.spacing(24),
+    },
+  },
+  fabFullScreen: {
+    position: 'fixed',
+    top: theme.spacing(0.5),
+    right: theme.spacing(50.5),
+    [theme.breakpoints.down('xs')]: {
+      right: theme.spacing(31.5),
     },
   },
   measurementGroupTitle: {
@@ -86,7 +90,7 @@ class UseCaseMeasurement extends Component {
     this.state = {
       useCaseId: '',
       useCaseDetails: '',
-      measurements: [],
+      measurementsCount: 0,
       lastMeasurementId: "",
       pinCode: null,
       displayText: true,
@@ -187,12 +191,11 @@ class UseCaseMeasurement extends Component {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  async getMeasurements() {
-    let measurements = await this.fetch('get', '/useCases/' + this.state.useCaseId + '/measurements')
-    measurements = measurements.measurements
+  async getMeasurementsCount() {
+    let measurementsCount = await this.fetch('get', '/useCases/' + this.state.useCaseId + '/measurements/count')
 
     this.setState({
-      measurements: measurements || []
+      measurementsCount: measurementsCount || 0
     });
   }
 
@@ -201,7 +204,7 @@ class UseCaseMeasurement extends Component {
       useCaseDetails: (await this.fetch('get', '/useCases/' + this.state.useCaseId)) || []
     })
 
-    this.getMeasurements()
+    this.getMeasurementsCount()
   }
 
   async deleteLastMeasurement() {
@@ -209,7 +212,7 @@ class UseCaseMeasurement extends Component {
     if(this.state.lastMeasurementId) {
       await this.fetch("DELETE", "/measurements/" + this.state.lastMeasurementId)
 
-      this.getMeasurements()
+      this.getMeasurementsCount()
       this.setState({ 
         lastMeasurementId: "",
         success: "Your last measurement was successfully deleted"
@@ -238,7 +241,7 @@ class UseCaseMeasurement extends Component {
         lastMeasurementId: response.id
       })
       
-      this.getMeasurements()
+      this.getMeasurementsCount()
     })
   }
 
@@ -260,6 +263,19 @@ class UseCaseMeasurement extends Component {
     })
   }
 
+  // toogle full screen
+  toggleFullscreen() {
+    let elem = document.querySelector("body");
+  
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch(err => {
+        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
   render() {
     const { classes } = this.props;
     const to = "/useCases/" + this.state.useCaseId + "/measurements/view"
@@ -270,6 +286,14 @@ class UseCaseMeasurement extends Component {
         <Typography className={ classes.title } variant="h6">Measurements { this.state.useCaseDetails.name } </Typography>
 
         { /* action items */ }
+        <Fab
+          color="secondary"
+          aria-label="export"
+          className={ classes.fabFullScreen }
+          onClick={ this.toggleFullscreen }
+        >
+          <FullscreenIcon />
+        </Fab>
         <Fab
           color="secondary"
           aria-label="export"
@@ -304,7 +328,7 @@ class UseCaseMeasurement extends Component {
           className={ classes.fabCount }
           classes={{disabled: classes.disabled}}
         >
-          { this.state.measurements.length }
+          { this.state.measurementsCount }
         </Fab>
         <Fab
           color="secondary"

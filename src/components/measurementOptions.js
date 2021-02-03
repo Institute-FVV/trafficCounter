@@ -23,7 +23,7 @@ const styles = theme => ({
 });
 
 // Definition of Icons which can be used for buttons
-// sourcehttps://material.io/resources/icons/?search=arrow&icon=arrow_downward&style=baseline
+// source https://material.io/resources/icons/?icon=arrow_downward&style=baseline
 const ICONS = ["", "accessibility", "accessible", "arrow_back", "arrow_forward", "arrow_upward", "arrow_downward"]
 
 class MeasurementOptions extends Component {

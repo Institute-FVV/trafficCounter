@@ -80,6 +80,31 @@ router.get("/:id/measurements", (req, res, next) => {
     })
 });
 
+// get measurements of a specific usecase
+router.get("/:id/measurements/count", (req, res, next) => {
+    let useCaseId = req.params.id
+
+    UseCase.findOne({
+        where: 
+        { 'id': useCaseId },
+        include: [
+            { model: Measurement, attributes: [ "groupName", "value", "timestamp" ]}
+        ],
+        order: [
+            [ Measurement, 'timestamp', 'DESC'],
+        ]
+    })
+    .then(data => {
+        res.status(200).json(data.measurements.length);
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        });
+    })
+});
+
 // verify if a given user provided the currect password
 router.post("/:id/authorize", (req, res, next) => {
     let useCaseId = req.params.id
