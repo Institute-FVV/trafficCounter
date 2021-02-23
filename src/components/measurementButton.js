@@ -13,7 +13,8 @@ const styles = theme => ({
       overflow: "hidden",
       minWidth: '0px',
       margin: theme.spacing(0.2, 0.2, 0.2, 0.2),
-      wordBreak: 'break-all'
+      wordBreak: 'break-all',
+      display: 'block',
     }),
   });
 
@@ -53,7 +54,7 @@ class MeasurementButton extends Component {
                 {displayText && (
                     this.state.buttonValue
                 )}
-
+                <br/>
                 <Icon>{this.state.icon}</Icon>
             </Button>
         )

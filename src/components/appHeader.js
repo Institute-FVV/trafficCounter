@@ -25,11 +25,14 @@ const styles = theme => ({
   },
   helpIcon: {
     fontSize: '4.5em',
-    color: '#f50057',
+    color: 'white',
   },
   toolBar: {
-    backgroundColor: "#a30d35",
+    backgroundColor: "#ba4682",
     padding: theme.spacing(1)
+  },
+  image: {
+    height: '40px'
   }
 })
 
@@ -57,7 +60,8 @@ class AppHeader extends Component {
       <AppBar position="static">
         <Toolbar className={ classes.toolBar }>
           <Button color="inherit" component={ Link } to="/">
-            <AvTimerIcon/>
+            <img className={ classes.image } src={`${window.location.origin}/images/fvv-header.png`} alt="FVV header image"/>
+            <AvTimerIcon/>            
             <Typography variant="h6" color="inherit">
               Counter 
             </Typography>

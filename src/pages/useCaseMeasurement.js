@@ -22,7 +22,7 @@ const styles = theme => ({
   title: {
     position: 'absolute',
     top: theme.spacing(4.5),
-    left: theme.spacing(2.5),
+    left: theme.spacing(13.5),
     color: 'white'
   },
   fabDelete: {
@@ -79,7 +79,7 @@ const styles = theme => ({
     },
   },
   measurementGroupTitle: {
-    fontSize: "2.5vh"
+    fontSize: "5vh"
   }
 });
 
