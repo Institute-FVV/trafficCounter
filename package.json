@@ -13,7 +13,7 @@
     "@okta/jwt-verifier": "^2.0.1",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^12.7.1",
+    "@testing-library/user-event": "^12.8.0",
     "bcrypt": "^5.0.0",
     "body-parse": "^0.1.0",
     "cors": "^2.8.5",
