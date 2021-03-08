@@ -20,7 +20,7 @@
     "dotenv": "^8.2.0",
     "epilogue": "^0.7.1",
     "express": "^4.17.1",
-    "final-form": "^4.20.1",
+    "final-form": "^4.20.2",
     "lodash": "^4.17.21",
     "material-table": "^1.69.2",
     "moment": "^2.29.1",
