@@ -10,10 +10,10 @@
   "dependencies": {
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
-    "@okta/jwt-verifier": "^2.0.1",
+    "@okta/jwt-verifier": "^2.1.0",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^13.0.6",
+    "@testing-library/user-event": "^13.0.16",
     "bcrypt": "^5.0.1",
     "body-parse": "^0.1.0",
     "cors": "^2.8.5",
@@ -36,7 +36,7 @@
     "react-scripts": "4.0.3",
     "react-select": "^4.3.0",
     "recompose": "^0.30.0",
-    "sequelize": "^6.6.1",
+    "sequelize": "^6.6.2",
     "uuid": "^8.3.2"
   },
   "scripts": {
