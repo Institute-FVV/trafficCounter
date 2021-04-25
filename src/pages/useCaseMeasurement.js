@@ -1,82 +1,27 @@
 import React, { Component, Fragment } from 'react';
-import { withRouter, Link  } from 'react-router-dom';
+import { withRouter  } from 'react-router-dom';
 import {
   withStyles,
   Typography,
-  Fab
+  Grid
 } from '@material-ui/core';
-import ListIcon from '@material-ui/icons/List';
-import ShareIcon from '@material-ui/icons/Share';
-import TouchAppIcon from '@material-ui/icons/TouchApp';
-import UndoIcon from '@material-ui/icons/Undo';
 import { compose } from 'recompose';
 
+import ActionItems from '../components/actionItems';
 import ErrorSnackbar from '../components/errorSnackbar';
 import MeasurementButtons from '../components/measurementButton';
-import LoadingBar from '../components/loadingBar'
 import InfoSnackbar from '..//components/infoSnackbar'
-import FullscreenIcon from '@material-ui/icons/Fullscreen';
 
 const REXECUTION_TIMEOUT = 5000   // rexecution timeout for retry of the failed fetch calls
 const styles = theme => ({
+  root: {
+    flexGrow: 1,
+  },
   title: {
     position: 'absolute',
     top: theme.spacing(4.5),
     left: theme.spacing(13.5),
     color: 'white'
-  },
-  fabDelete: {
-    position: 'fixed',
-    top: theme.spacing(0.5),
-    right: theme.spacing(26.5),
-    [theme.breakpoints.down('xs')]: {
-      right: theme.spacing(16.5),
-    },
-  },
-  fabCount: {
-    position: 'fixed',
-    top: theme.spacing(0.5),
-    right: theme.spacing(10.5),
-    "&$disabled": {
-      backgroundColor: "#f50057",
-      color: "white"
-    },
-    [theme.breakpoints.down('xs')]: {
-      right: theme.spacing(9),
-    },
-  },
-  disabled: {},
-  fabList: {
-    position: 'fixed',
-    top: theme.spacing(0.5),
-    right: theme.spacing(18.5),
-    [theme.breakpoints.down('xs')]: {
-      visibility: "hidden"
-    },
-  },
-  fabShare: {
-    position: 'fixed',
-    top: theme.spacing(0.5),
-    right: theme.spacing(34.5),
-    [theme.breakpoints.down('xs')]: {
-      visibility: "hidden"
-    },
-  },
-  fabToogle: {
-    position: 'fixed',
-    top: theme.spacing(0.5),
-    right: theme.spacing(42.5),
-    [theme.breakpoints.down('xs')]: {
-      right: theme.spacing(24),
-    },
-  },
-  fabFullScreen: {
-    position: 'fixed',
-    top: theme.spacing(0.5),
-    right: theme.spacing(50.5),
-    [theme.breakpoints.down('xs')]: {
-      right: theme.spacing(31.5),
-    },
   },
   measurementGroupTitle: {
     fontSize: "5vh"
@@ -98,6 +43,7 @@ class UseCaseMeasurement extends Component {
       success: null,
       error: null,
       loading: false,
+      connectivityIssue: false,
     };
 
     this.saveMeasurement = this.saveMeasurement.bind(this)
@@ -136,7 +82,7 @@ class UseCaseMeasurement extends Component {
     })
   }
 
-  async fetch(method, endpoint, body) {
+  async fetch(method, endpoint, body, surpressError) {
     this.setState({loading: true})
 
     try {
@@ -154,7 +100,6 @@ class UseCaseMeasurement extends Component {
       if(response.ok && (response.status === 201 || response.status === 200)) {
         return await response.json();
       } else {
-        console.error(response.status)
         this.setState({
           error: { message: "Error when communicating with backend: " + response.statusText }
         })
@@ -162,28 +107,49 @@ class UseCaseMeasurement extends Component {
         throw new Error("Error communicating with backend")
       }
     } catch (error) {
-      console.error(error);
+      // used to surpress the error notifcation
+      if(!surpressError) {
+        this.setState({ 
+          error: error,
+          loading: false,
+        });
+      }
 
-      this.setState({ 
-        error: error,
-        loading: false,
-      });
-
-      throw error
+      throw new Error(error)      
     }
   }
 
   // recursive extension of the fetch method
   // allows to reexecute failed fetch calls until they succeded
   async fetch_retry (method, endpoint, body) {
+    let error = null
+
     try {
-        return await this.fetch(method, endpoint, body)
+        return await this.fetch(method, endpoint, body, true)
     } 
     catch(err) {
-      // retry after some wait period
+      error = err
+      // retry after some wait period, and update state if not already done
+      if(!this.state.connectivityIssue) {
+        this.setState({
+          connectivityIssue: true,
+          error: { message: "Error when communicating with backend. We are continuously trying it and will inform you as soon as the connection has ben reestablished. The measurements are still being saved locally and synchronized as soon as connection is present again." }
+        })
+      }
+
       await this.sleep(REXECUTION_TIMEOUT)
-        return this.fetch_retry(method, endpoint, body)  
+        return this.fetch_retry(method, endpoint, body)
     }
+    finally {
+      // if err
+      if(!error && this.state.connectivityIssue) {
+        this.setState({
+          connectivityIssue: false,
+          success: "Connection established again. Now syncing your measurements. Check the above measurement counter."
+        })
+      }
+    }
+    
   }
 
   // function which sleeps some defined milliseconds
@@ -278,7 +244,6 @@ class UseCaseMeasurement extends Component {
 
   render() {
     const { classes } = this.props;
-    const to = "/useCases/" + this.state.useCaseId + "/measurements/view"
     let that = this
 
     return (
@@ -286,59 +251,14 @@ class UseCaseMeasurement extends Component {
         <Typography className={ classes.title } variant="h6">Measurements { this.state.useCaseDetails.name } </Typography>
 
         { /* action items */ }
-        <Fab
-          color="secondary"
-          aria-label="export"
-          className={ classes.fabFullScreen }
-          onClick={ this.toggleFullscreen }
-        >
-          <FullscreenIcon />
-        </Fab>
-        <Fab
-          color="secondary"
-          aria-label="export"
-          className={ classes.fabToogle }
-          onClick={ this.toogleIconView }
-        >
-          <TouchAppIcon />
-        </Fab>
-
-        <Fab
-          color="secondary"
-          aria-label="export"
-          className={ classes.fabShare }
-          onClick={ this.shareLink }
-        >
-          <ShareIcon />
-        </Fab>
-
-        <Fab
-          color="secondary"
-          aria-label="export"
-          className={ classes.fabDelete }
-          onClick={ this.deleteLastMeasurement }
-        >
-          <UndoIcon />
-        </Fab>
-
-        <Fab
-          color="secondary"
-          aria-label="edit"
-          disabled={true}
-          className={ classes.fabCount }
-          classes={{disabled: classes.disabled}}
-        >
-          { this.state.measurementsCount }
-        </Fab>
-        <Fab
-          color="secondary"
-          aria-label="export"
-          className={ classes.fabList }
-          component={ Link }
-          to={ to }
-        >
-          <ListIcon />
-        </Fab>
+        <ActionItems
+          toggleFullscreen = { this.toggleFullscreen }
+          toogleIconView = { this.toogleIconView }
+          shareLink = { this.shareLink }
+          deleteLastMeasurement = { this.deleteLastMeasurement }
+          measurementsCount = { this.state.measurementsCount }
+          useCaseId = { this.state.useCaseId }
+        />
 
         {this.state.useCaseDetails !== "" ? (
           // measurements present
@@ -350,24 +270,26 @@ class UseCaseMeasurement extends Component {
               // iteration for buttons
               
               return(
-                <MeasurementButtons 
-                  onClick={ that.saveMeasurement} 
-                  key={`${ opionIndex }-${ optionElement.name }`}
-                  groupName={ groupElement.name } 
-                  buttonValue={ optionElement }
-                  length={ optionsArray.length } 
-                  groupLength={ groupArray.length }
-                  displayText={ that.state.displayText }
-                />
+                <Grid item xs>
+                  <MeasurementButtons 
+                    onClick={ that.saveMeasurement} 
+                    key={`${ opionIndex }-${ optionElement.name }`}
+                    groupName={ groupElement.name } 
+                    buttonValue={ optionElement }
+                    length={ optionsArray.length } 
+                    groupLength={ groupArray.length }
+                    displayText={ that.state.displayText }
+                  />
+                </Grid>
               )
             })
 
             return(
-              <div key={ `${ groupIndex }buttonList` }>
+              <div className={ classes.root } key={ `${ groupIndex }buttonList` }>
                 <Typography className={classes.measurementGroupTitle}>{ groupElement.name }</Typography>
-                <div>
+                <Grid container spacing={1}>
                   {buttons}
-                </div>
+                </Grid>
               </div>
             )
           })
@@ -377,11 +299,6 @@ class UseCaseMeasurement extends Component {
           !this.state.loading && (
             <Typography variant="subtitle1">No measurements have been taken so far</Typography>
           )
-        )}
-
-        { /* Flag based display of loadingbar */ }
-        {this.state.loading && (
-          <LoadingBar/>
         )}
 
         { /* Flag based display of error snackbar */ }

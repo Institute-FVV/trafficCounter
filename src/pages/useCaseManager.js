@@ -264,7 +264,7 @@ class UseCaseManager extends Component {
                       <IconButton component={ Link } to={ `/useCases/${ useCase.id }/copy` } color="inherit">
                         <FileCopyIcon />
                       </IconButton>
-                      <IconButton component={ Link } to={ `/useCases/${ useCase.id }` } color="inherit">
+                      <IconButton component={ Link } to={ `/useCases/${ useCase.id }/edit` } color="inherit">
                         <CreateIcon />
                       </IconButton>
                       <IconButton onClick={() => this.deleteUseCase(useCase)} color="inherit">
@@ -274,12 +274,14 @@ class UseCaseManager extends Component {
                   )}
                 </ListItem>
               ))}
-            </List>
 
-            { /* must be placed here so that the state is correctly loaded */}
-            <Route exact path="/useCases/:id/copy" render={ this.renderUseCaseEditor } />
-            <Route exact path="/useCases/:id" render={ this.renderUseCaseEditor } />
-          </Paper>          
+              { /* must be placed here so that the state is correctly loaded */}
+              <Route exact path="/useCases/:id/edit" render={ this.renderUseCaseEditor } />
+              <Route exact path="/useCases/:id/copy" render={ this.renderUseCaseEditor } />
+            </List>
+          </Paper>
+
+          
         ) : (
           // no usecases available
           !this.state.loading && (
@@ -298,8 +300,9 @@ class UseCaseManager extends Component {
             >
               <AddIcon />
             </Fab>
-
-          </Fragment>
+            
+            <Route exact path="/useCases/:id" render={ this.renderUseCaseEditor } />
+          </Fragment>          
         )}
 
         { /* Flag based display of loadingbar */ }

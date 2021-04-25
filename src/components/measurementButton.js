@@ -8,13 +8,13 @@ import {
 
 const styles = theme => ({
     button: props => ({
-      width: (1/(props.length+1))*100 + '%',
-      height: (1/(props.groupLength))*100 - 6 + "vh",
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '10vh',
       overflow: "hidden",
-      minWidth: '0px',
-      margin: theme.spacing(0.2, 0.2, 0.2, 0.2),
       wordBreak: 'break-all',
-      display: 'block',
     }),
   });
 
@@ -55,7 +55,10 @@ class MeasurementButton extends Component {
                     this.state.buttonValue
                 )}
                 <br/>
-                <Icon>{this.state.icon}</Icon>
+
+                { this.state.icon && (
+                    <Icon>{this.state.icon}</Icon>
+                )}
             </Button>
         )
     }
