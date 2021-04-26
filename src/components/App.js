@@ -28,6 +28,7 @@ const App = ({ classes }) => (
       <Route exact path="/useCases" component={ UseCaseManager } />
       <Route exact path="/useCases/:id/measurements" component={ UseCaseMeasurement } />
       <Route exact path="/useCases/:id" component={ UseCaseManager } />
+      <Route exact path="/useCases/:id/edit" component={ UseCaseManager } />
       <Route exact path="/useCases/:id/copy" component={ UseCaseManager } />
       <Route exact path="/useCases/:id/measurements/view" component={ MeasurementView } />
     </main>

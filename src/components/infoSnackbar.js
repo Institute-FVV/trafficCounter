@@ -25,7 +25,7 @@ const styles = theme => ({
     marginRight: theme.spacing(1),
   },
 });
-const AUTO_HIDE_DURATION = 6000
+const AUTO_HIDE_DURATION = 10000
 
 const InfoSnackbar = ({ id, message, onClose, classes }) => (
   <Snackbar

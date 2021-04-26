@@ -29,7 +29,7 @@ const styles = theme => ({
 const ErrorSnackbar = ({ id, message, onClose, classes }) => (
   <Snackbar
     open
-    autoHideDuration={ 6000 }
+    autoHideDuration={ 10000 }
     onClose={ onClose }
   >
     <SnackbarContent
