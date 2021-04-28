@@ -12,7 +12,7 @@ import ErrorSnackbar from '../components/errorSnackbar';
 import MeasurementButtons from '../components/measurementButton';
 import InfoSnackbar from '..//components/infoSnackbar'
 
-const REXECUTION_TIMEOUT = 5000   // rexecution timeout for retry of the failed fetch calls
+const SYNC_INTERVAL = 5000
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -35,7 +35,9 @@ class UseCaseMeasurement extends Component {
     this.state = {
       useCaseId: '',
       useCaseDetails: '',
-      measurementsCount: 0,
+      measurementsCountOnline: 0,
+      measurementsCountOffline: 0,
+      pendingMeasurements: [],
       lastMeasurementId: "",
       pinCode: null,
       displayText: true,
@@ -67,6 +69,10 @@ class UseCaseMeasurement extends Component {
       pinCode: body.pinCode
     })
 
+    this.checkPinCode(useCaseId, body)
+  }
+
+  checkPinCode(useCaseId, body) { 
     // check if correct pin has been provided
     this.fetch('post', '/useCases/' + useCaseId + '/authorize', body)
     .then(response => {
@@ -75,6 +81,7 @@ class UseCaseMeasurement extends Component {
           useCaseId: useCaseId
         }, this.getUseCase)
     })
+
     .catch(error => {
       this.setState({
         error: { message: "Wrong pinCode provide there for no access granted"}
@@ -119,49 +126,12 @@ class UseCaseMeasurement extends Component {
     }
   }
 
-  // recursive extension of the fetch method
-  // allows to reexecute failed fetch calls until they succeded
-  async fetch_retry (method, endpoint, body) {
-    let error = null
-
-    try {
-        return await this.fetch(method, endpoint, body, true)
-    } 
-    catch(err) {
-      error = err
-      // retry after some wait period, and update state if not already done
-      if(!this.state.connectivityIssue) {
-        this.setState({
-          connectivityIssue: true,
-          error: { message: "Error when communicating with backend. We are continuously trying it and will inform you as soon as the connection has ben reestablished. The measurements are still being saved locally and synchronized as soon as connection is present again." }
-        })
-      }
-
-      await this.sleep(REXECUTION_TIMEOUT)
-        return this.fetch_retry(method, endpoint, body)
-    }
-    finally {
-      // if err
-      if(!error && this.state.connectivityIssue) {
-        this.setState({
-          connectivityIssue: false,
-          success: "Connection established again. Now syncing your measurements. Check the above measurement counter."
-        })
-      }
-    }
-    
-  }
-
-  // function which sleeps some defined milliseconds
-  sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
-
   async getMeasurementsCount() {
     let measurementsCount = await this.fetch('get', '/useCases/' + this.state.useCaseId + '/measurements/count')
 
     this.setState({
-      measurementsCount: measurementsCount || 0
+      measurementsCountOnline: measurementsCount || 0,
+      measurementsCountOffline: this.state.measurementsCountOnline + this.state.pendingMeasurements.length
     });
   }
 
@@ -199,15 +169,14 @@ class UseCaseMeasurement extends Component {
       "timestamp": Date.now(),      // set measurement time in frontend
       "value": buttonValue 
     }
+
+    let pendingMeasurements = this.state.pendingMeasurements
+    pendingMeasurements.push(postData)
     
-    // post data as long till it is successfull
-    await this.fetch_retry('post', `/measurements/`, postData)
-    .then(response => {
-      this.setState({
-        lastMeasurementId: response.id
-      })
-      
-      this.getMeasurementsCount()
+    localStorage.setItem("pendingMeasurements", JSON.stringify(pendingMeasurements))
+
+    this.setState({
+      pendingMeasurements: pendingMeasurements
     })
   }
 
