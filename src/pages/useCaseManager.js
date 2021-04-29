@@ -200,7 +200,7 @@ class UseCaseManager extends Component {
     // create new object
     if(match.path.includes("copy")) {
       useCase = Object.create(useCase)
-      useCase.id = ""
+      useCase.name = useCase.name + " (Copy)"
     }
 
     return (
