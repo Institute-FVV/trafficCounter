@@ -18,6 +18,7 @@ const styles = theme => ({
         position: 'fixed',
         top: theme.spacing(0.5),
         right: theme.spacing(26.5),
+        zIndex: 100,
         [theme.breakpoints.down('xs')]: {
           right: theme.spacing(16.5),
         },
@@ -26,6 +27,7 @@ const styles = theme => ({
         position: 'fixed',
         top: theme.spacing(0.5),
         right: theme.spacing(10.5),
+        zIndex: 100,
         "&$disabled": {
             backgroundColor: "#f50057",
             color: "white"
@@ -38,6 +40,7 @@ const styles = theme => ({
         position: 'fixed',
         top: theme.spacing(0.5),
         right: theme.spacing(18.5),
+        zIndex: 100,
         [theme.breakpoints.down('xs')]: {
             visibility: "hidden"
         },
@@ -46,6 +49,7 @@ const styles = theme => ({
         position: 'fixed',
         top: theme.spacing(0.5),
         right: theme.spacing(34.5),
+        zIndex: 100,
         [theme.breakpoints.down('xs')]: {
             visibility: "hidden"
         },
@@ -54,6 +58,7 @@ const styles = theme => ({
         position: 'fixed',
         top: theme.spacing(0.5),
         right: theme.spacing(42.5),
+        zIndex: 100,
         [theme.breakpoints.down('xs')]: {
             right: theme.spacing(24),
         },
@@ -62,6 +67,7 @@ const styles = theme => ({
         position: 'fixed',
         top: theme.spacing(0.5),
         right: theme.spacing(50.5),
+        zIndex: 100,
         [theme.breakpoints.down('xs')]: {
             right: theme.spacing(31.5),
         },
