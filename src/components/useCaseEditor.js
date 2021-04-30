@@ -14,8 +14,11 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import ClearIcon from '@material-ui/icons/Clear';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import { compose } from 'recompose';
 import { withRouter } from 'react-router-dom';
+
+import './utensils'
 import MeasurementOptions from './measurementOptions'
 
 const styles = theme => ({
@@ -131,6 +134,18 @@ class UseCaseditor extends Component {
       });
   };
 
+  handleCopyOptionGroup = idx => () => {
+    let measurementOptions = this.state.measurementOptions
+    let newMeasurementOption = {...measurementOptions[idx]}
+    newMeasurementOption.id = this.state.measurementOptions.length
+
+    measurementOptions.insert(idx, newMeasurementOption)
+
+    this.setState({
+      measurementOptions: measurementOptions
+    })
+  }
+
   render() {
     const { classes, history, errorMessage} = this.props;
     var that = this
@@ -205,6 +220,15 @@ class UseCaseditor extends Component {
                         onClick={that.handleRemoveOptionGroup(index)}
                       >
                         <DeleteIcon/>Remove Option Group
+                      </Button>
+
+                      <Button 
+                        size="small" 
+                        color="primary" 
+                        className={classes.button} 
+                        onClick={that.handleCopyOptionGroup(index)}
+                      >
+                        <FileCopyIcon/>Copy Option Group
                       </Button>
                     </div>
                   </FormGroup>
