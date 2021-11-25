@@ -1,4 +1,6 @@
-# Counting app
+# Counting app  
+[![Publish counter docker image](https://github.com/Institute-FVV/trafficCounter/actions/workflows/action.yml/badge.svg?branch=master)](https://github.com/Institute-FVV/trafficCounter/actions/workflows/action.yml)  
+
 ## Scope
 The goal was to create a dynamic counter app to replace the current paper-heavy counting tasks. The application must be able to run on the mobile and must be intuitive. 
 
