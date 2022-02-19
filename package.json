@@ -30,7 +30,7 @@
     "postgres": "^1.0.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-final-form": "^6.5.7",
+    "react-final-form": "^6.5.8",
     "react-google-recaptcha": "^2.1.0",
     "react-router-dom": "^5.3.0",
     "react-scripts": "5.0.0",
