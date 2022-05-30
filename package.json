@@ -12,7 +12,7 @@
     "@material-ui/icons": "^4.11.3",
     "@okta/jwt-verifier": "^2.3.0",
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^12.1.4",
+    "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^14.0.4",
     "bcrypt": "^5.0.1",
     "body-parse": "^0.1.0",
